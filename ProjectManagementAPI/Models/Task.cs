@@ -1,11 +1,12 @@
-﻿using ProjectManagementAPI.Models.Enums;
+﻿using Microsoft.AspNetCore.Identity;
+using ProjectManagementAPI.Models.Enums;
 
 namespace ProjectManagementAPI.Models
 {
     public class Task
     {
 
-        public Task(int id, string title, string description, DateTime deadline, Priority priority, Status status, Project project) 
+        public Task(int id, string title, string description, DateTime deadline, Priority priority, Status status, Project project, IdentityUser assignedTo) 
         {
             Title = title;
             Description = description;
@@ -13,6 +14,7 @@ namespace ProjectManagementAPI.Models
             Priority = priority;
             Status = status;
             Project = project;
+            AssignedTo = assignedTo;
         }
 
         private Task() { }
@@ -25,5 +27,7 @@ namespace ProjectManagementAPI.Models
         public Status Status {  get; set; }
 
         public Project Project { get; set; }
+
+        IdentityUser AssignedTo { get; set; }
     }
 }
