@@ -250,10 +250,10 @@ namespace ProjectManagementAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Projects");
+                    b.ToTable("Projects", (string)null);
                 });
 
-            modelBuilder.Entity("ProjectManagementAPI.Models.ProjectTask", b =>
+            modelBuilder.Entity("ProjectManagementAPI.Models.Task", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -285,7 +285,7 @@ namespace ProjectManagementAPI.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("Tasks");
+                    b.ToTable("Tasks", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -339,7 +339,7 @@ namespace ProjectManagementAPI.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ProjectManagementAPI.Models.ProjectTask", b =>
+            modelBuilder.Entity("ProjectManagementAPI.Models.Task", b =>
                 {
                     b.HasOne("ProjectManagementAPI.Models.Project", "Project")
                         .WithMany()
