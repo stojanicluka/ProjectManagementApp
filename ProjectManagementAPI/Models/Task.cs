@@ -7,7 +7,6 @@ namespace ProjectManagementAPI.Models
 
         public Task(int id, string title, string description, DateTime deadline, Priority priority, Status status, Project project) 
         {
-            Id = id;
             Title = title;
             Description = description;
             Deadline = deadline;
@@ -15,13 +14,13 @@ namespace ProjectManagementAPI.Models
             Status = status;
             Project = project;
         }
-        public int Id { get; }
+        public int Id { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
         public DateTime Deadline { get; set; }
         public Priority Priority {  get; set; }
         public Status Status {  get; set; }
 
-        public Project Project { get; }
+        public Project Project { get; set; }
     }
 }
