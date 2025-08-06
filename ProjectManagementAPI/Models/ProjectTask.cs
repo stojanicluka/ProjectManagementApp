@@ -3,10 +3,10 @@ using ProjectManagementAPI.Models.Enums;
 
 namespace ProjectManagementAPI.Models
 {
-    public class Task
+    public class ProjectTask
     {
 
-        public Task(string title, string description, DateTime deadline, Priority priority, Status status, Project project, IdentityUser assignedTo) 
+        public ProjectTask(string title, string description, DateTime deadline, Priority priority, Status status, Project project, IdentityUser assignedTo) 
         {
             Title = title;
             Description = description;
@@ -17,7 +17,7 @@ namespace ProjectManagementAPI.Models
             AssignedTo = assignedTo;
         }
 
-        private Task() { }
+        private ProjectTask() { }
 
         public int Id { get; set; }
         public string Title { get; set; }
