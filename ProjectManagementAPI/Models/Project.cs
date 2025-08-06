@@ -4,7 +4,7 @@ namespace ProjectManagementAPI.Models
 {
     public class Project
     {
-        public Project(int id, string title, string description, DateTime startDate, DateTime deadline, Status status)
+        public Project(string title, string description, DateTime startDate, DateTime deadline, Status status)
         {
             Title = title;
             Description = description;

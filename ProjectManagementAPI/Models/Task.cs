@@ -6,7 +6,7 @@ namespace ProjectManagementAPI.Models
     public class Task
     {
 
-        public Task(int id, string title, string description, DateTime deadline, Priority priority, Status status, Project project, IdentityUser assignedTo) 
+        public Task(string title, string description, DateTime deadline, Priority priority, Status status, Project project, IdentityUser assignedTo) 
         {
             Title = title;
             Description = description;
