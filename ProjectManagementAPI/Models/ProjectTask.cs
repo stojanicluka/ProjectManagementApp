@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using ProjectManagementAPI.Models.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace ProjectManagementAPI.Models
 {
@@ -28,6 +29,7 @@ namespace ProjectManagementAPI.Models
 
         public Project Project { get; set; }
 
-        IdentityUser AssignedTo { get; set; }
+        [Required]
+        public IdentityUser AssignedTo { get; set; }
     }
 }

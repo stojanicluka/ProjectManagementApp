@@ -12,8 +12,8 @@ using ProjectManagementAPI;
 namespace ProjectManagementAPI.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    [Migration("20250806182708_AddIdentity")]
-    partial class AddIdentity
+    [Migration("20250806192519_Initialize")]
+    partial class Initialize
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -256,13 +256,17 @@ namespace ProjectManagementAPI.Migrations
                     b.ToTable("Projects");
                 });
 
-            modelBuilder.Entity("ProjectManagementAPI.Models.Task", b =>
+            modelBuilder.Entity("ProjectManagementAPI.Models.ProjectTask", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AssignedToId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("Deadline")
                         .HasColumnType("datetime2");
@@ -285,6 +289,8 @@ namespace ProjectManagementAPI.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AssignedToId");
 
                     b.HasIndex("ProjectId");
 
@@ -342,13 +348,21 @@ namespace ProjectManagementAPI.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ProjectManagementAPI.Models.Task", b =>
+            modelBuilder.Entity("ProjectManagementAPI.Models.ProjectTask", b =>
                 {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "AssignedTo")
+                        .WithMany()
+                        .HasForeignKey("AssignedToId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("ProjectManagementAPI.Models.Project", "Project")
                         .WithMany()
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("AssignedTo");
 
                     b.Navigation("Project");
                 });
