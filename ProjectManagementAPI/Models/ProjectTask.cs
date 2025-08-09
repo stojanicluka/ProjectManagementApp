@@ -30,6 +30,6 @@ namespace ProjectManagementAPI.Models
         public Project Project { get; set; }
 
         [Required]
-        public IdentityUser AssignedTo { get; set; }
+        public ApplicationUser AssignedTo { get; set; }
     }
 }
