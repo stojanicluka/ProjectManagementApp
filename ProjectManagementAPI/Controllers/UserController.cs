@@ -95,7 +95,7 @@ namespace ProjectManagementAPI.Controllers
         [Route("{id}")]
         public async Task<IActionResult> DeleteUserAsync(String userID)
         {
-            return Ok(_userService.DeleteUserAsync(userID));
+            return Ok(await _userService.DeleteUserAsync(userID));
         }
     }
 }
