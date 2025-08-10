@@ -41,13 +41,13 @@ namespace ProjectManagementAPI.Services
         }
 
 
-        public async Task<RoleAssignmentResult> AssignRole(int userID, int roleID)
+        public async Task<RoleAssignmentResult> AssignRole(String userID, String roleID)
         {
-            ApplicationUser? user = await _userManager.FindByIdAsync(userID.ToString());
+            ApplicationUser? user = await _userManager.FindByIdAsync(userID);
             if (user == null)
                 return RoleAssignmentResult.USER_NOT_FOUND;
 
-            IdentityRole? role = await _roleManager.FindByIdAsync(roleID.ToString());
+            IdentityRole? role = await _roleManager.FindByIdAsync(roleID);
             if (role == null)
                 return RoleAssignmentResult.ROLE_NOT_FOUND;
 
@@ -56,6 +56,9 @@ namespace ProjectManagementAPI.Services
 
             return RoleAssignmentResult.SUCCESS;
         }
+
+
+       
 
     }
 }
