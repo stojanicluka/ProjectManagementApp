@@ -62,5 +62,18 @@ namespace ProjectManagementAPI.Controllers
                     return Ok();
             }
         }
+
+        [HttpPut]
+        [Route("password/reset/{id}")]
+        public async Task<IActionResult> ResetPasswordAsync(String id, PasswordDTO pDTO)
+        {
+            switch (await _userService.ResetPasswordAsync(id, pDTO))
+            {
+                case UserService.PasswordChangeResult.USER_NOT_FOUND:
+                    return NotFound("User not found");
+                default:
+                    return Ok();
+            }
+        }
     }
 }
