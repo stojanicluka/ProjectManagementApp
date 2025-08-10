@@ -15,6 +15,7 @@ namespace ProjectManagementAPI.Services
         public enum RegistrationResult { SUCCESS, USERNAME_EXISTS, WRONG_EMAIL_FORMAT }
         public enum RoleAssignmentResult { SUCCESS, USER_NOT_FOUND, ROLE_NOT_FOUND, ASSIGNMENT_FAILED }
         public enum UserUpdateResult { SUCCESS, USER_NOT_FOUND, WRONG_EMAIL_FORMAT, USERNAME_EXISTS, USER_UPDATE_FAILED }
+        public enum PasswordChangeResult { SUCCESS, USER_NOT_FOUND, WRONG_CURRENT_PASSWORD }
 
         public UserService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
@@ -85,7 +86,23 @@ namespace ProjectManagementAPI.Services
             user.Email = uDTO.Email;
             user.UserName = uDTO.Username;
 
+            await _userManager.UpdateAsync(user);
+
             return UserUpdateResult.SUCCESS;
+        }
+
+        public async Task<PasswordChangeResult> ChangePasswordAsync(String id, PasswordDTO pDTO)
+        {
+            ApplicationUser? user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+                return PasswordChangeResult.USER_NOT_FOUND;
+
+            if (await _userManager.CheckPasswordAsync(user, pDTO.OldPassword))
+                return PasswordChangeResult.WRONG_CURRENT_PASSWORD;
+
+            await _userManager.ChangePasswordAsync(user, pDTO.OldPassword, pDTO.NewPassword);
+
+            return PasswordChangeResult.SUCCESS;
         }
 
     }
