@@ -122,6 +122,7 @@ namespace ProjectManagementAPI.Controllers
         }
 
         [HttpGet]
+        [Route("role")]
         public async Task<IActionResult> FetchAllRolesAsync()
         {
             return Ok(await _userService.FetchAllRolesAsync());
