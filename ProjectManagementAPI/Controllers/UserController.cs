@@ -90,5 +90,12 @@ namespace ProjectManagementAPI.Controllers
                     return Ok();
             }
         }
+
+        [HttpDelete]
+        [Route("{id}")]
+        public async Task<IActionResult> DeleteUserAsync(String userID)
+        {
+            return Ok(_userService.DeleteUserAsync(userID));
+        }
     }
 }
