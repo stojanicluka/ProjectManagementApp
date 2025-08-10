@@ -128,5 +128,29 @@ namespace ProjectManagementAPI.Services
             return true;
         }
 
+        public async Task<UserDTO> FetchUserAsync(String id)
+        {
+            ApplicationUser? user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+                return null;
+
+            UserDTO uDTO = new UserDTO
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Username = user.UserName,
+                Email = user.Email
+            };
+
+            IList<String> userRoles = await _userManager.GetRolesAsync(user);
+            if (userRoles.Count == 0)
+            {
+                IdentityRole role = await _roleManager.FindByNameAsync(userRoles[0]);
+                uDTO.Role = new RoleDTO { Id = role.Id, Name = role.Name };
+            }
+
+            return uDTO;
+        }
     }
 }
