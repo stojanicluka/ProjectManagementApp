@@ -11,7 +11,7 @@
         // Plain-text password, sent only when registering or updating user
         public String Password { get; set; }
 
-        public RoleDTO Role { get; set; }
+        public RoleDTO? Role { get; set; }
 
     }
 }

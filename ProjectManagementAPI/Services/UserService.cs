@@ -13,7 +13,8 @@ namespace ProjectManagementAPI.Services
         private RoleManager<IdentityRole> _roleManager;
 
         public enum RegistrationResult { SUCCESS, USERNAME_EXISTS, WRONG_EMAIL_FORMAT }
-        public enum RoleAssignmentResult { SUCCESS, USER_NOT_FOUND, ROLE_NOT_FOUND, ASSIGNMENT_ERROR }
+        public enum RoleAssignmentResult { SUCCESS, USER_NOT_FOUND, ROLE_NOT_FOUND, ASSIGNMENT_FAILED }
+        public enum UserUpdateResult { SUCCESS, USER_NOT_FOUND, WRONG_EMAIL_FORMAT, USERNAME_EXISTS, USER_UPDATE_FAILED }
 
         public UserService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
@@ -21,7 +22,7 @@ namespace ProjectManagementAPI.Services
             _roleManager = roleManager;
         }
 
-        public async Task<RegistrationResult> RegisterUser(UserDTO uDTO)
+        public async Task<RegistrationResult> RegisterUserAsync(UserDTO uDTO)
         {
             if (await _userManager.FindByNameAsync(uDTO.Username) != null)
                 return RegistrationResult.USERNAME_EXISTS;
@@ -42,7 +43,7 @@ namespace ProjectManagementAPI.Services
         }
 
 
-        public async Task<RoleAssignmentResult> AssignRole(String userID, String roleID)
+        public async Task<RoleAssignmentResult> AssignRoleAsync(String userID, String roleID)
         {
             ApplicationUser? user = await _userManager.FindByIdAsync(userID);
             if (user == null)
@@ -53,18 +54,38 @@ namespace ProjectManagementAPI.Services
                 return RoleAssignmentResult.ROLE_NOT_FOUND;
 
             if (!(await _userManager.AddToRoleAsync(user, role.Name)).Succeeded)
-                return RoleAssignmentResult.ASSIGNMENT_ERROR;
+                return RoleAssignmentResult.ASSIGNMENT_FAILED;
 
             return RoleAssignmentResult.SUCCESS;
         }
 
-        public async Task<List<RoleDTO>> FetchAllRoles()
+        public async Task<List<RoleDTO>> FetchAllRolesAsync()
         {
             return await _roleManager.Roles.Select(role => new RoleDTO()
             {
                 Id = role.Id,
                 Name = role.Name
             }).ToListAsync();
+        }
+
+        public async Task<UserUpdateResult> UpdateUserAsync(String id, UserDTO uDTO)
+        {
+            ApplicationUser? user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+                return UserUpdateResult.USER_NOT_FOUND;
+
+            if (await _userManager.FindByNameAsync(uDTO.Username) != null)
+                return UserUpdateResult.USERNAME_EXISTS;
+
+            if (!Regex.IsMatch(uDTO.Email, emailPattern))
+                return UserUpdateResult.WRONG_EMAIL_FORMAT;
+
+            user.FirstName = uDTO.FirstName;
+            user.LastName = uDTO.LastName;
+            user.Email = uDTO.Email;
+            user.UserName = uDTO.Username;
+
+            return UserUpdateResult.SUCCESS;
         }
 
     }
