@@ -75,5 +75,20 @@ namespace ProjectManagementAPI.Controllers
                     return Ok();
             }
         }
+
+        [HttpPut]
+        [Route("role/{userID}/{roleID}")]
+        public async Task<IActionResult> AssignRoleAsync(String userID, String roleID)
+        {
+            switch (await _userService.AssignRoleAsync(userID, roleID))
+            {
+                case UserService.RoleAssignmentResult.USER_NOT_FOUND:
+                    return NotFound("User not found");
+                case UserService.RoleAssignmentResult.ROLE_NOT_FOUND:
+                    return NotFound("Role not found");
+                default:
+                    return Ok();
+            }
+        }
     }
 }
