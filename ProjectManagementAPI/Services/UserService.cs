@@ -55,6 +55,8 @@ namespace ProjectManagementAPI.Services
             if (role == null)
                 return RoleAssignmentResult.ROLE_NOT_FOUND;
 
+            IList<String> roles = await _userManager.GetRolesAsync(user);
+            await _userManager.RemoveFromRolesAsync(user, roles);
             if (!(await _userManager.AddToRoleAsync(user, role.Name)).Succeeded)
                 return RoleAssignmentResult.ASSIGNMENT_FAILED;
 
@@ -144,7 +146,7 @@ namespace ProjectManagementAPI.Services
             };
 
             IList<String> userRoles = await _userManager.GetRolesAsync(user);
-            if (userRoles.Count == 0)
+            if (userRoles.Count != 0)
             {
                 IdentityRole role = await _roleManager.FindByNameAsync(userRoles[0]);
                 uDTO.Role = new RoleDTO { Id = role.Id, Name = role.Name };
@@ -155,15 +157,32 @@ namespace ProjectManagementAPI.Services
 
         public async Task<List<UserDTO>> FetchAllUsersAsync()
         {
-            return await _userManager.Users.Select(user => new UserDTO
-            {
-                Id = user.Id,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Username = user.UserName,
-                Email = user.Email
+            List<ApplicationUser> users = await _userManager.Users.Select(user => user).ToListAsync();
+            List<UserDTO> uDTOs = new List<UserDTO>();
 
-            }).ToListAsync();
+            foreach (ApplicationUser user in users)
+            {
+                UserDTO uDTO = new UserDTO
+                {
+                    Id = user.Id,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Username = user.UserName,
+                    Email = user.Email
+                };
+
+                IList<String> roles = await _userManager.GetRolesAsync(user);
+                if (roles.Count > 0)
+                {
+                    IdentityRole role = await _roleManager.FindByNameAsync(roles[0]);
+                    uDTO.Role = new RoleDTO { Id = role.Id, Name = role.Name };    
+                }
+
+                uDTOs.Add(uDTO);
+
+            }
+
+            return uDTOs;
         }
     }
 }
