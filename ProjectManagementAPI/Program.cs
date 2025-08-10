@@ -22,6 +22,20 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+// Initialize roles
+
+var roles = new List<string> { "ADMIN", "MANAGER", "TEAM MEMBER", "INACTIVE" };
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    foreach (String role in roles)
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+            await roleManager.CreateAsync(new IdentityRole(role));
+    }
+}
+
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
