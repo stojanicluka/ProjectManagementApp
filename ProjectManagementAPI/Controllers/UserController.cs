@@ -18,7 +18,7 @@ namespace ProjectManagementAPI.Controllers
 
         [HttpPost]
         [Route("register")]
-        public async Task<IActionResult> RegisterUser(UserDTO uDTO)
+        public async Task<IActionResult> RegisterUserAsync(UserDTO uDTO)
         {
             switch (await _userService.RegisterUserAsync(uDTO))
             {
@@ -31,7 +31,12 @@ namespace ProjectManagementAPI.Controllers
             }
         }
 
-
+        [HttpPost]
+        [Route("login")]
+        public async Task<IActionResult> LoginAsync(LoginDTO lDTO)
+        {
+            return NotFound("Debug: Endpoint not implemented");
+        }
 
         [HttpPut]
         [Route("{id}")]
