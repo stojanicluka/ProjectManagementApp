@@ -22,15 +22,30 @@ namespace ProjectManagementAPI.Controllers
         {
             switch (await _userService.RegisterUserAsync(uDTO))
             {
-                case UserService.RegistrationResult.SUCCESS:
-                    return Ok();
                 case UserService.RegistrationResult.USERNAME_EXISTS:
                     return Conflict("Username already exists");
                 case UserService.RegistrationResult.WRONG_EMAIL_FORMAT:
                     return BadRequest("Wrong email address format");
+                default:
+                    return Ok();
             }
         }
 
-
+        [HttpPut]
+        [Route("{id}")]
+        public async Task<IActionResult> UpdateUserAsync(String id, UserDTO uDTO)
+        {
+            switch (await _userService.UpdateUserAsync(id, uDTO))
+            {
+                case UserService.UserUpdateResult.USERNAME_EXISTS:
+                    return Conflict("Username already exists");
+                case UserService.UserUpdateResult.USER_NOT_FOUND:
+                    return NotFound("User not found");
+                case UserService.UserUpdateResult.WRONG_EMAIL_FORMAT:
+                    return BadRequest("Wrong email format");
+                default:
+                    return Ok();
+            }
+        }
     }
 }
