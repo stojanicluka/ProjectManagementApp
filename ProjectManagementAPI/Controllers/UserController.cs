@@ -113,5 +113,11 @@ namespace ProjectManagementAPI.Controllers
         {
             return Ok(await _userService.FetchAllUsersAsync());
         }
+
+        [HttpGet]
+        public async Task<IActionResult> FetchAllRolesAsync()
+        {
+            return Ok(await _userService.FetchAllRolesAsync());
+        }
     }
 }
