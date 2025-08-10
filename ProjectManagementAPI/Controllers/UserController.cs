@@ -107,5 +107,11 @@ namespace ProjectManagementAPI.Controllers
                 return NotFound("User not found");
             return Ok(uDTO);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> FetchAllUsersAsync()
+        {
+            return Ok(await _userService.FetchAllUsersAsync());
+        }
     }
 }
