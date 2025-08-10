@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using ProjectManagementAPI.DTO;
 using ProjectManagementAPI.Models;
+using System.Reflection.Metadata.Ecma335;
 using System.Text.RegularExpressions;
 
 namespace ProjectManagementAPI.Services
@@ -115,6 +116,16 @@ namespace ProjectManagementAPI.Services
             await _userManager.ResetPasswordAsync(user, token, pDTO.NewPassword);
 
             return PasswordChangeResult.SUCCESS;
+        }
+
+        public async Task<bool> DeleteUserAsync(String id)
+        {
+            ApplicationUser? user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+                return false;
+
+            await _userManager.DeleteAsync(user);
+            return true;
         }
 
     }
