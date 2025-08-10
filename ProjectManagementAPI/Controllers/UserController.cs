@@ -47,5 +47,20 @@ namespace ProjectManagementAPI.Controllers
                     return Ok();
             }
         }
+
+        [HttpPut]
+        [Route("password/change/{id}")]
+        public async Task<IActionResult> ChangePasswordAsync(String id, PasswordDTO pDTO)
+        {
+            switch (await _userService.ChangePasswordAsync(id, pDTO))
+            {
+                case UserService.PasswordChangeResult.USER_NOT_FOUND:
+                    return NotFound("User not found");
+                case UserService.PasswordChangeResult.WRONG_CURRENT_PASSWORD:
+                    return BadRequest("Wrong current password");
+                default:
+                    return Ok();
+            }
+        }
     }
 }
