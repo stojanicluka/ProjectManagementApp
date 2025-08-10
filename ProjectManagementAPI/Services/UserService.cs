@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using ProjectManagementAPI.DTO;
 using ProjectManagementAPI.Models;
 using System.Text.RegularExpressions;
@@ -57,8 +58,14 @@ namespace ProjectManagementAPI.Services
             return RoleAssignmentResult.SUCCESS;
         }
 
-
-       
+        public async Task<List<RoleDTO>> FetchAllRoles()
+        {
+            return await _roleManager.Roles.Select(role => new RoleDTO()
+            {
+                Id = role.Id,
+                Name = role.Name
+            }).ToListAsync();
+        }
 
     }
 }
