@@ -152,5 +152,18 @@ namespace ProjectManagementAPI.Services
 
             return uDTO;
         }
+
+        public async Task<List<UserDTO>> FetchAllUsersAsync()
+        {
+            return await _userManager.Users.Select(user => new UserDTO
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Username = user.UserName,
+                Email = user.Email
+
+            }).ToListAsync();
+        }
     }
 }
