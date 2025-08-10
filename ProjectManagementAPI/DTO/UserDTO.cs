@@ -8,7 +8,7 @@
         public String Username { get; set; }
         public String Email { get; set; }
 
-        // Plain-text password, sent only when registering or updating user
+        // Plain-text password, sent only when registering
         public String Password { get; set; }
 
         public RoleDTO? Role { get; set; }

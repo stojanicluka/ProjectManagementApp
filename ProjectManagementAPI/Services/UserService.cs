@@ -105,5 +105,17 @@ namespace ProjectManagementAPI.Services
             return PasswordChangeResult.SUCCESS;
         }
 
+        public async Task<PasswordChangeResult> ResetPasswordAsync(String id, PasswordDTO pDTO)
+        {
+            ApplicationUser? user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+                return PasswordChangeResult.USER_NOT_FOUND;
+
+            String token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            await _userManager.ResetPasswordAsync(user, token, pDTO.NewPassword);
+
+            return PasswordChangeResult.SUCCESS;
+        }
+
     }
 }
