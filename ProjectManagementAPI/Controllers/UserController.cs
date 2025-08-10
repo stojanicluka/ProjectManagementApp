@@ -93,9 +93,19 @@ namespace ProjectManagementAPI.Controllers
 
         [HttpDelete]
         [Route("{id}")]
-        public async Task<IActionResult> DeleteUserAsync(String userID)
+        public async Task<IActionResult> DeleteUserAsync(String id)
         {
-            return Ok(await _userService.DeleteUserAsync(userID));
+            return Ok(await _userService.DeleteUserAsync(id));
+        }
+
+        [HttpGet]
+        [Route("{id}")]
+        public async Task<IActionResult> FetchUserAsync(String id)
+        {
+            UserDTO uDTO = await _userService.FetchUserAsync(id);
+            if (uDTO == null)
+                return NotFound("User not found");
+            return Ok(uDTO);
         }
     }
 }
