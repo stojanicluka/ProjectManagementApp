@@ -75,9 +75,9 @@ namespace ProjectManagementAPI.Services
                 throw new DatabaseException("Error when deleting from a database");
         }
 
-        public async Task<List<ProjectDTO>> FetchAllAsync()
+        public async Task<List<GetProjectDTO>> FetchAllAsync()
         {
-            return await _context.Projects.Select(p => new ProjectDTO
+            return await _context.Projects.Select(p => new GetProjectDTO
             {
                 Id = p.Id,
                 Title = p.Title,
@@ -89,13 +89,13 @@ namespace ProjectManagementAPI.Services
             }).ToListAsync();
         }
 
-        public async Task<ProjectDTO?> FetchAsync(int id)
+        public async Task<GetProjectDTO> FetchAsync(int id)
         {
             Project? project = await _context.Projects.FindAsync(id);
             if (project == null)
-                return null;
+                throw new ProjectNotFoundException("Project with id " + id.ToString() + " does not exist.");
 
-            return new ProjectDTO
+            return new GetProjectDTO
             {
                 Id = project.Id,
                 Title = project.Title,
