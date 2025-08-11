@@ -22,6 +22,13 @@
             Body = body;
         }
 
+        public APIResponse(Object body)
+        {
+            Success = true;
+            Errors = new List<Error>();
+            Body = body;
+        }
+
         public bool Success { get; set; }
         public List<Error> Errors { get; set; }
 

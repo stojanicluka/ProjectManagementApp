@@ -2,6 +2,7 @@
 using ProjectManagementAPI.DTO;
 using ProjectManagementAPI.Models;
 using ProjectManagementAPI.Services;
+using ProjectManagementAPI.Services.Exceptions;
 
 namespace ProjectManagementAPI.Controllers
 {
@@ -16,36 +17,78 @@ namespace ProjectManagementAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateProject([FromBody] ProjectDTO pDTO)
+        public async Task<IActionResult> CreateProject([FromBody] CreateProjectDTO dto)
         {
-            return Ok(await _service.CreateAsync(pDTO));
+            try
+            {
+                return Ok(new APIResponse(await _service.CreateAsync(dto)));
+            }
+            catch (APIException ex)
+            {
+                List<APIResponse.Error> errors = new List<APIResponse.Error> { new APIResponse.Error { Type = ex.getType(), Message = ex.Message } };
+                return BadRequest(new APIResponse(false, errors, null));
+            }
         }
 
         [HttpGet]
         [Route("{id}")]
         public async Task<IActionResult> FetchProject(int id)
         {
-            return Ok(await _service.FetchAsync(id));
+            try
+            {
+                return Ok(new APIResponse(await _service.FetchAsync(id)));
+            }
+            catch (APIException ex)
+            {
+                List<APIResponse.Error> errors = new List<APIResponse.Error> { new APIResponse.Error { Type = ex.getType(), Message = ex.Message } };
+                return BadRequest(new APIResponse(false, errors, null));
+            }
         }
 
         [HttpGet]
         public async Task<IActionResult> FetchAllProjects()
         {
-            return Ok(await _service.FetchAllAsync());
+            try
+            {
+                return Ok(new APIResponse(await _service.FetchAllAsync()));
+            }
+            catch (APIException ex)
+            {
+                List<APIResponse.Error> errors = new List<APIResponse.Error> { new APIResponse.Error { Type = ex.getType(), Message = ex.Message } };
+                return BadRequest(new APIResponse(false, errors, null));
+            }
         }
 
         [HttpPut]
         [Route("{id}")]
-        public async Task<IActionResult> UpdateProject(int id, [FromBody] ProjectDTO pDTO)
+        public async Task<IActionResult> UpdateProject(int id, [FromBody] PatchDTO dto)
         {
-            return Ok(await _service.UpdateAsync(id, pDTO));
+            try
+            {
+                await _service.UpdateAsync(id, dto);
+                return Ok(new APIResponse());
+            }
+            catch (APIException ex)
+            {
+                List<APIResponse.Error> errors = new List<APIResponse.Error> { new APIResponse.Error { Type = ex.getType(), Message = ex.Message } };
+                return BadRequest(new APIResponse(false, errors, null));
+            }
         }
 
         [HttpDelete]
         [Route("{id}")]
         public async Task<IActionResult> DeleteProject(int id)
         {
-            return Ok(await _service.DeleteAsync(id));
+            try
+            {
+                await _service.DeleteAsync(id);
+                return Ok(new APIResponse());
+            }
+            catch (APIException ex)
+            {
+                List<APIResponse.Error> errors = new List<APIResponse.Error> { new APIResponse.Error { Type = ex.getType(), Message = ex.Message } };
+                return BadRequest(new APIResponse(false, errors, null));
+            }
         }
     }
 }
