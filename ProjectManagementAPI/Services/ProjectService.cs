@@ -1,7 +1,11 @@
-﻿using ProjectManagementAPI.DTO;
-using ProjectManagementAPI.Models;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using ProjectManagementAPI.DTO;
+using ProjectManagementAPI.Models;
+using ProjectManagementAPI.Models.Enums;
 using ProjectManagementAPI.Services.Exceptions;
+using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace ProjectManagementAPI.Services
 {
@@ -24,20 +28,40 @@ namespace ProjectManagementAPI.Services
             return new IntegerIdDTO { Id = project.Id };
         }
 
-        public async Task<bool> UpdateAsync(int id, ProjectDTO pDTO)
+        public async Task UpdateAsync(int id, PatchDTO dto)
         {
             Project? project = await _context.Projects.FindAsync(id);
-            if (project == null) return false;
+            if (project == null)
+                throw new ProjectNotFoundException("Project with id " + id.ToString() + " not found.");
 
-            project.Title = pDTO.Title;
-            project.Description = pDTO.Description;
-            project.StartDate = pDTO.StartDate;
-            project.Deadline = pDTO.Deadline;
-            project.EndDate = pDTO.EndDate;
-            project.Status = pDTO.Status;
+            foreach (PatchDTO.Patch p in dto.Patches)
+            {
+                switch (p.Field)
+                {
+                    case "Title":
+                        project.Title = ((JsonElement)p.Value).Deserialize<String>();
+                        break;
+                    case "Description":
+                        project.Description = ((JsonElement)p.Value).Deserialize<String>();
+                        break;
+                    case "StartDate":
+                        project.Deadline = ((JsonElement)p.Value).Deserialize<DateTime>();
+                        break;
+                    case "EndDate":
+                        project.Deadline = ((JsonElement)p.Value).Deserialize<DateTime>();
+                        break;
+                    case "Deadline":
+                        project.Deadline = ((JsonElement)p.Value).Deserialize<DateTime>();
+                        break;
+                    case "Status":
+                        project.Status = ((JsonElement)p.Value).Deserialize<Status>();
+                        break;
+                    default:
+                        throw new FieldUpdateNotAllowedException("Field " + p.Field + " can't be modified");
+                }
 
-            await _context.SaveChangesAsync();
-            return true;
+                await _context.SaveChangesAsync();
+            }
         }
 
         public async Task<bool> DeleteAsync(int id)

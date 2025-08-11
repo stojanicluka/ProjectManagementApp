@@ -35,7 +35,7 @@ namespace ProjectManagementAPI.Controllers
 
         [HttpPatch]
         [Route("{taskId}")]
-        public async Task<IActionResult> UpdateTaskAsync(int projectId, int taskId, PatchTaskDTO dto)
+        public async Task<IActionResult> UpdateTaskAsync(int projectId, int taskId, PatchDTO dto)
         {
             try
             {

@@ -41,7 +41,7 @@ namespace ProjectManagementAPI.Services
                 throw new DatabaseException("Error when writing to database");
         }
 
-        public async Task UpdateTaskAsync(int projectId, int taskId, PatchTaskDTO dto)
+        public async Task UpdateTaskAsync(int projectId, int taskId, PatchDTO dto)
         {
             if (await FindProject(projectId) == null)
                 throw new ProjectNotFoundException("Project with id " + projectId.ToString() + " not found");
@@ -50,7 +50,7 @@ namespace ProjectManagementAPI.Services
             if (task == null)
                 throw new TaskNotFoundException("Task with id " + taskId.ToString() + " not found");
 
-            foreach (PatchTaskDTO.Patch p in dto.Patches)
+            foreach (PatchDTO.Patch p in dto.Patches)
             {
                 switch (p.Field)
                 {

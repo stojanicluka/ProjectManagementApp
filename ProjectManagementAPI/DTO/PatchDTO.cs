@@ -2,7 +2,7 @@
 
 namespace ProjectManagementAPI.DTO
 {
-    public class PatchTaskDTO
+    public class PatchDTO
     {
         public class Patch
         {
