@@ -39,6 +39,23 @@ namespace ProjectManagementAPI.Controllers
             try
             {
                 await _taskService.UpdateTaskAsync(projectId, taskId, dto);
+                return Ok(new APIResponse());
+            }
+            catch (APIException ex)
+            {
+                List<APIResponse.Error> errors = new List<APIResponse.Error> { new APIResponse.Error { Type = ex.Type, Message = ex.Message } };
+                return NotFound(new APIResponse(false, errors, null));
+            }
+        }
+
+        [HttpDelete]
+        [Route("{taskId}")]
+        public async Task<IActionResult> DeleteTaskAsync(int projectId, int taskId)
+        {
+            try
+            {
+                await _taskService.DeleteTaskAsync(projectId, taskId);
+                return Ok(new APIResponse());
             }
             catch (APIException ex)
             {
