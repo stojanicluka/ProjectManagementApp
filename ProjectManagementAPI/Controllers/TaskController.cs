@@ -2,6 +2,7 @@
 using ProjectManagementAPI.DTO;
 using ProjectManagementAPI.Services;
 using ProjectManagementAPI.Services.Exceptions;
+using System.Threading.Tasks;
 
 namespace ProjectManagementAPI.Controllers
 {
@@ -72,7 +73,22 @@ namespace ProjectManagementAPI.Controllers
             {
                 return Ok(new APIResponse(true, new List<APIResponse.Error>(), await _taskService.GetTaskAsync(projectId, taskId)));
             }
-            catch
+            catch (APIException ex)
+            {
+                List<APIResponse.Error> errors = new List<APIResponse.Error> { new APIResponse.Error { Type = ex.Type, Message = ex.Message } };
+                return NotFound(new APIResponse(false, errors, null));
+            }
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllProjectTasksAsync(int projectId)
+        {
+            try
+            {
+                return Ok(new APIResponse(true, new List<APIResponse.Error>(), await _taskService.GetAllProjectTasksAsync(projectId)));
+            }
+            catch (APIException ex)
             {
                 List<APIResponse.Error> errors = new List<APIResponse.Error> { new APIResponse.Error { Type = ex.Type, Message = ex.Message } };
                 return NotFound(new APIResponse(false, errors, null));
