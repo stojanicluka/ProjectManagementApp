@@ -120,5 +120,23 @@ namespace ProjectManagementAPI.Services
                 userId = task.AssignedTo.Id
             };
         }
+
+        public async Task<List<GetTaskDTO>> GetAllProjectTasksAsync(int projectId)
+        {
+            Project? project = await FindProject(projectId);
+            if (project == null)
+                throw new ProjectNotFoundException("Project with " + projectId.ToString() + " not found");
+
+            return _dbContext.Tasks.Where(task => task.Project == project).Select(task => new GetTaskDTO
+            {
+                Deadline = task.Deadline,
+                Priority = task.Priority,
+                Description = task.Description,
+                Id = task.Id,
+                Status = task.Status,
+                Title = task.Title,
+                userId = task.AssignedTo.Id
+            }).ToList();
+        }
     }
 }
