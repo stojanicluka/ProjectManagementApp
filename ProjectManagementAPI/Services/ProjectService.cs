@@ -1,6 +1,7 @@
 ﻿using ProjectManagementAPI.DTO;
 using ProjectManagementAPI.Models;
 using Microsoft.EntityFrameworkCore;
+using ProjectManagementAPI.Services.Exceptions;
 
 namespace ProjectManagementAPI.Services
 {
@@ -12,12 +13,15 @@ namespace ProjectManagementAPI.Services
             _context = context;
         }
 
-        public async Task<int> CreateAsync(ProjectDTO pDTO)
+        public async Task<IntegerIdDTO> CreateAsync(CreateProjectDTO dto)
         {
-            Project project = new Project(pDTO.Title, pDTO.Description, pDTO.StartDate, pDTO.Deadline, pDTO.Status);
+            Project project = new Project(dto.Title, dto.Description, dto.StartDate, dto.Deadline, dto.Status);
             await _context.Projects.AddAsync(project);
-            await _context.SaveChangesAsync();
-            return project.Id;
+
+            if (await _context.SaveChangesAsync() == 0)
+                throw new DatabaseException("Error when writing to database");
+
+            return new IntegerIdDTO { Id = project.Id };
         }
 
         public async Task<bool> UpdateAsync(int id, ProjectDTO pDTO)
