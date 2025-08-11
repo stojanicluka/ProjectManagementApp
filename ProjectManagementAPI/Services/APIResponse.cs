@@ -1,6 +1,6 @@
 ﻿namespace ProjectManagementAPI.Services
 {
-    public class Response
+    public class APIResponse
     {
         public class Error
         {
@@ -8,9 +8,18 @@
             public String Message { get; set; }
         }
 
-        public Response()
+        public APIResponse()
         {
+            Success = true;
             Errors = new List<Error>();
+            Body = null;
+        }
+
+        public APIResponse(bool success, List<Error> errors, Object? body)
+        {
+            Success = success;
+            Errors = errors;
+            Body = body;
         }
 
         public bool Success { get; set; }
