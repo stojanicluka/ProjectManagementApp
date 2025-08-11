@@ -15,6 +15,7 @@ builder.Services.AddDbContext<AppDBContext>(options =>
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<AppDBContext>();
 builder.Services.AddScoped<ProjectService> ();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<TaskService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
