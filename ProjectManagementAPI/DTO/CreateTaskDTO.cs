@@ -24,6 +24,6 @@ namespace ProjectManagementAPI.DTO
         public String userId { get; set; }
 
         [Required]
-        public int projectId { get; set; }
+        public int ProjectId { get; set; }
     }
 }
