@@ -27,7 +27,7 @@ namespace ProjectManagementAPI.Services
         {
             Project? project = await FindProject(projectId);
             if (project == null) 
-                throw new ProjectNotFoundException("Project with " + projectId.ToString() + " not found");
+                throw new ProjectNotFoundException("Project with id " + projectId.ToString() + " not found");
 
             ApplicationUser? user = await _userManager.FindByIdAsync(dto.userId);
             if (user == null)
@@ -43,7 +43,7 @@ namespace ProjectManagementAPI.Services
         public async Task UpdateTaskAsync(int projectId, int taskId, PatchTaskDTO dto)
         {
             if (await FindProject(projectId) == null)
-                throw new ProjectNotFoundException("Project with " + projectId.ToString() + " not found");
+                throw new ProjectNotFoundException("Project with id " + projectId.ToString() + " not found");
 
             ProjectTask? task = await _dbContext.Tasks.FindAsync(taskId);
             if (task == null)
@@ -88,7 +88,7 @@ namespace ProjectManagementAPI.Services
         public async Task DeleteTaskAsync(int projectId, int taskId)
         {
             if (await FindProject(projectId) == null)
-                throw new ProjectNotFoundException("Project with " + projectId.ToString() + " not found");
+                throw new ProjectNotFoundException("Project with ID " + projectId.ToString() + " not found");
 
 
             ProjectTask? task = await _dbContext.Tasks.FindAsync(taskId);
@@ -103,7 +103,7 @@ namespace ProjectManagementAPI.Services
         public async Task<GetTaskDTO> GetTaskAsync(int projectId, int taskId)
         {
             if (await FindProject(projectId) == null)
-                throw new ProjectNotFoundException("Project with " + projectId.ToString() + " not found");
+                throw new ProjectNotFoundException("Project with ID" + projectId.ToString() + " not found");
 
 
             ProjectTask? task = await _dbContext.Tasks.FindAsync(taskId);
@@ -126,7 +126,7 @@ namespace ProjectManagementAPI.Services
         {
             Project? project = await FindProject(projectId);
             if (project == null)
-                throw new ProjectNotFoundException("Project with " + projectId.ToString() + " not found");
+                throw new ProjectNotFoundException("Project with ID" + projectId.ToString() + " not found");
 
             return _dbContext.Tasks.Where(task => task.Project == project).Select(task => new GetTaskDTO
             {
