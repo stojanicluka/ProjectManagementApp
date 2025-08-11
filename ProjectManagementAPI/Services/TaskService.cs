@@ -26,9 +26,9 @@ namespace ProjectManagementAPI.Services
 
         public async Task CreateTaskAsync(CreateTaskDTO dto)
         {
-            Project? project = await FindProject(dto.projectId);
+            Project? project = await FindProject(dto.ProjectId);
             if (project == null) 
-                throw new ProjectNotFoundException("Project with id " + projectId.ToString() + " not found");
+                throw new ProjectNotFoundException("Project with id " + dto.ProjectId.ToString() + " not found");
 
             ApplicationUser? user = await _userManager.FindByIdAsync(dto.userId);
             if (user == null)

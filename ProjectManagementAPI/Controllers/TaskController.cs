@@ -22,7 +22,7 @@ namespace ProjectManagementAPI.Controllers
         {
             try
             {
-                await _taskService.CreateTaskAsync(projectId, dto);
+                await _taskService.CreateTaskAsync(dto);
                 return Ok(new APIResponse());
             }
             catch (APIException ex)
