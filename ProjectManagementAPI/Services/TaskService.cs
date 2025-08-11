@@ -121,7 +121,7 @@ namespace ProjectManagementAPI.Services
             };
         }
 
-        public async Task<List<GetTaskDTO>> GetAllProjectUserTasksAsync(int? projectId, String? userId)
+        public async Task<List<GetTaskDTO>> GetAllProjectUserTasksAsync(int? projectId, String? userId, Status? status)
         {
             IQueryable<ProjectTask> query = _dbContext.Tasks;
 
@@ -130,6 +130,9 @@ namespace ProjectManagementAPI.Services
 
             if (userId != null)
                 query = query.Where(task => task.AssignedTo.Id == userId);
+
+            if (status != null)
+                query = query.Where(task => task.Status == status);
 
             return await query.Select(task => new GetTaskDTO
             {

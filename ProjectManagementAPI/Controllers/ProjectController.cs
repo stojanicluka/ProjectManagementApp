@@ -59,7 +59,7 @@ namespace ProjectManagementAPI.Controllers
             }
         }
 
-        [HttpPut]
+        [HttpPatch]
         [Route("{id}")]
         public async Task<IActionResult> UpdateProject(int id, [FromBody] PatchDTO dto)
         {

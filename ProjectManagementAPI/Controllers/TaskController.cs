@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ProjectManagementAPI.DTO;
+using ProjectManagementAPI.Models.Enums;
 using ProjectManagementAPI.Services;
 using ProjectManagementAPI.Services.Exceptions;
 using System.Threading.Tasks;
@@ -81,11 +82,11 @@ namespace ProjectManagementAPI.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> GetAllProjectTasksAsync([FromQuery] int? projectId = null, [FromQuery] String? userId = null)
+        public async Task<IActionResult> GetAllProjectTasksAsync([FromQuery] int? projectId = null, [FromQuery] String? userId = null, [FromQuery] Status? status = null)
         {
             try
             {
-                return Ok(new APIResponse(true, new List<APIResponse.Error>(), await _taskService.GetAllProjectUserTasksAsync(projectId, userId)));
+                return Ok(new APIResponse(true, new List<APIResponse.Error>(), await _taskService.GetAllProjectUserTasksAsync(projectId, userId, status)));
             }
             catch (APIException ex)
             {
