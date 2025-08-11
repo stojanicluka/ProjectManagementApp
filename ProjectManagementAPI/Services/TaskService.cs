@@ -25,7 +25,7 @@ namespace ProjectManagementAPI.Services
             return await _dbContext.Projects.FindAsync(projectId);
         }
 
-        public async Task CreateTaskAsync(CreateTaskDTO dto)
+        public async Task<IntegerIdDTO> CreateTaskAsync(CreateTaskDTO dto)
         {
             Project? project = await FindProject(dto.ProjectId);
             if (project == null) 
@@ -40,6 +40,8 @@ namespace ProjectManagementAPI.Services
             _dbContext.Tasks.Add(task);
             if (await _dbContext.SaveChangesAsync() == 0)
                 throw new DatabaseException("Error when writing to database");
+
+            return new IntegerIdDTO { Id = task.Id };
         }
 
         public async Task UpdateTaskAsync(int taskId, PatchDTO dto)
