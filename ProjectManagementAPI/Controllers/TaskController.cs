@@ -24,19 +24,25 @@ namespace ProjectManagementAPI.Controllers
                 await _taskService.CreateTaskAsync(projectId, dto);
                 return Ok(new APIResponse());
             }
-            catch (ProjectNotFoundException ex)
+            catch (APIException ex)
             {
-                List<APIResponse.Error> errors = new List<APIResponse.Error> { new APIResponse.Error { Type = "ProjectNotFound", Message = "Project not found" } };
+                List<APIResponse.Error> errors = new List<APIResponse.Error> { new APIResponse.Error { Type = ex.Type, Message = ex.Message } };
                 return NotFound(new APIResponse(false, errors, null));
             }
-            catch (UserNotFoundException ex)
+
+        }
+
+        [HttpPatch]
+        [Route("{taskId}")]
+        public async Task<IActionResult> UpdateTaskAsync(int projectId, int taskId, PatchTaskDTO dto)
+        {
+            try
             {
-                List<APIResponse.Error> errors = new List<APIResponse.Error> { new APIResponse.Error { Type = "UserNotFound", Message = "User not found" } };
-                return NotFound(new APIResponse(false, errors, null));
+                await _taskService.UpdateTaskAsync(projectId, taskId, dto);
             }
-            catch (DatabaseException ex)
+            catch (APIException ex)
             {
-                List<APIResponse.Error> errors = new List<APIResponse.Error> { new APIResponse.Error { Type = "DatabaseError", Message = "Database error" } };
+                List<APIResponse.Error> errors = new List<APIResponse.Error> { new APIResponse.Error { Type = ex.Type, Message = ex.Message } };
                 return NotFound(new APIResponse(false, errors, null));
             }
         }
