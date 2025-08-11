@@ -98,5 +98,27 @@ namespace ProjectManagementAPI.Services
             if (await _dbContext.SaveChangesAsync() == 0)
                 throw new DatabaseException("Error when deleting from database");
         }
+
+        public async Task<GetTaskDTO> GetTaskAsync(int projectId, int taskId)
+        {
+            if (await FindProject(projectId) == null)
+                throw new ProjectNotFoundException("Project with " + projectId.ToString() + " not found");
+
+
+            ProjectTask? task = await _dbContext.Tasks.FindAsync(taskId);
+            if (task == null)
+                throw new TaskNotFoundException("Task with id " + taskId.ToString() + " not found");
+
+            return new GetTaskDTO 
+            { 
+                Id = task.Id,
+                Description = task.Description,
+                Deadline = task.Deadline,
+                Priority = task.Priority,
+                Status = task.Status,
+                Title = task.Title,
+                userId = task.AssignedTo.Id
+            };
+        }
     }
 }
