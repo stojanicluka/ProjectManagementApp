@@ -1,8 +1,8 @@
 ﻿namespace ProjectManagementAPI.DTO
 {
-    public class PasswordDTO
+    public class ChangePasswordDTO
     {
-        public String OldPassword { get; set; }
+        public String CurrentPassword { get; set; }
         public String NewPassword { get; set; }
     }
 }

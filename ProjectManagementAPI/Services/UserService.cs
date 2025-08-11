@@ -49,13 +49,13 @@ namespace ProjectManagementAPI.Services
         }
 
 
-        public async Task AssignRoleAsync(String userID, String roleID)
+        public async Task AssignRoleAsync(String userID, StringIdDTO dto)
         {
             ApplicationUser? user = await _userManager.FindByIdAsync(userID);
             if (user == null)
                 throw new UserNotFoundException("User with ID " +  userID + " does not exist");
 
-            IdentityRole? role = await _roleManager.FindByIdAsync(roleID);
+            IdentityRole? role = await _roleManager.FindByIdAsync(dto.Id);
             if (role == null)
                 throw new RoleNotFoundException("Role with ID " + userID + " does not exist");
 
@@ -109,21 +109,21 @@ namespace ProjectManagementAPI.Services
             await _userManager.UpdateAsync(user);
         }
 
-        public async Task ChangePasswordAsync(String id, PasswordDTO pDTO)
+        public async Task ChangePasswordAsync(String id, ChangePasswordDTO pDTO)
         {
             ApplicationUser? user = await _userManager.FindByIdAsync(id);
             if (user == null)
                 throw new UserNotFoundException("User with ID " + id + " does not exist");
 
-            if (await _userManager.CheckPasswordAsync(user, pDTO.OldPassword))
+            if (await _userManager.CheckPasswordAsync(user, pDTO.CurrentPassword))
                 throw new WrongCurrentPasswordException("Wrong current password");
 
-            IdentityResult result = await _userManager.ChangePasswordAsync(user, pDTO.OldPassword, pDTO.NewPassword);
+            IdentityResult result = await _userManager.ChangePasswordAsync(user, pDTO.CurrentPassword, pDTO.NewPassword);
             if (result.Errors.Count() > 0)
                 throw new PasswordChangeError(result.Errors.First().Description);
         }
 
-        public async Task ResetPasswordAsync(String id, PasswordDTO pDTO)
+        public async Task ResetPasswordAsync(String id, ChangePasswordDTO pDTO)
         {
             ApplicationUser? user = await _userManager.FindByIdAsync(id);
             if (user == null)

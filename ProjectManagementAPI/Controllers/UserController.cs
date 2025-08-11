@@ -39,63 +39,67 @@ namespace ProjectManagementAPI.Controllers
             return NotFound("Debug: Endpoint not implemented");
         }
 
-        [HttpPut]
+        [HttpPatch]
         [Route("{id}")]
-        public async Task<IActionResult> UpdateUserAsync(String id, UserDTO uDTO)
+        public async Task<IActionResult> UpdateUserAsync(String id, PatchDTO dto)
         {
-            switch (await _userService.UpdateUserAsync(id, uDTO))
+            try
             {
-                case UserService.UserUpdateResult.USERNAME_EXISTS:
-                    return Conflict("Username already exists");
-                case UserService.UserUpdateResult.USER_NOT_FOUND:
-                    return NotFound("User not found");
-                case UserService.UserUpdateResult.WRONG_EMAIL_FORMAT:
-                    return BadRequest("Wrong email format");
-                default:
-                    return Ok();
+                await _userService.UpdateUserAsync(id, dto);
+                return Ok();
+            }
+            catch (APIException ex)
+            {
+                List<APIResponse.Error> errors = new List<APIResponse.Error> { new APIResponse.Error { Type = ex.getType(), Message = ex.Message } };
+                return BadRequest(new APIResponse(false, errors, null));
             }
         }
 
         [HttpPut]
         [Route("password/change/{id}")]
-        public async Task<IActionResult> ChangePasswordAsync(String id, PasswordDTO pDTO)
+        public async Task<IActionResult> ChangePasswordAsync(String id, ChangePasswordDTO dto)
         {
-            switch (await _userService.ChangePasswordAsync(id, pDTO))
+            try
             {
-                case UserService.PasswordChangeResult.USER_NOT_FOUND:
-                    return NotFound("User not found");
-                case UserService.PasswordChangeResult.WRONG_CURRENT_PASSWORD:
-                    return BadRequest("Wrong current password");
-                default:
-                    return Ok();
+                await _userService.ChangePasswordAsync(id, dto);
+                return Ok();
+            }
+            catch (APIException ex)
+            {
+                List<APIResponse.Error> errors = new List<APIResponse.Error> { new APIResponse.Error { Type = ex.getType(), Message = ex.Message } };
+                return BadRequest(new APIResponse(false, errors, null));
             }
         }
 
         [HttpPut]
         [Route("password/reset/{id}")]
-        public async Task<IActionResult> ResetPasswordAsync(String id, PasswordDTO pDTO)
+        public async Task<IActionResult> ResetPasswordAsync(String id, ChangePasswordDTO dto)
         {
-            switch (await _userService.ResetPasswordAsync(id, pDTO))
+            try
             {
-                case UserService.PasswordChangeResult.USER_NOT_FOUND:
-                    return NotFound("User not found");
-                default:
-                    return Ok();
+                await _userService.ResetPasswordAsync(id, dto);
+                return Ok();
+            }
+            catch (APIException ex)
+            {
+                List<APIResponse.Error> errors = new List<APIResponse.Error> { new APIResponse.Error { Type = ex.getType(), Message = ex.Message } };
+                return BadRequest(new APIResponse(false, errors, null));
             }
         }
 
         [HttpPut]
-        [Route("role/{userID}/{roleID}")]
-        public async Task<IActionResult> AssignRoleAsync(String userID, String roleID)
+        [Route("role/{userID}")]
+        public async Task<IActionResult> AssignRoleAsync(String userID, StringIdDTO dto)
         {
-            switch (await _userService.AssignRoleAsync(userID, roleID))
+            try
             {
-                case UserService.RoleAssignmentResult.USER_NOT_FOUND:
-                    return NotFound("User not found");
-                case UserService.RoleAssignmentResult.ROLE_NOT_FOUND:
-                    return NotFound("Role not found");
-                default:
-                    return Ok();
+                await _userService.AssignRoleAsync(userID, dto);
+                return Ok();
+            }
+            catch (APIException ex)
+            {
+                List<APIResponse.Error> errors = new List<APIResponse.Error> { new APIResponse.Error { Type = ex.getType(), Message = ex.Message } };
+                return BadRequest(new APIResponse(false, errors, null));
             }
         }
 
@@ -103,30 +107,60 @@ namespace ProjectManagementAPI.Controllers
         [Route("{id}")]
         public async Task<IActionResult> DeleteUserAsync(String id)
         {
-            return Ok(await _userService.DeleteUserAsync(id));
+            try
+            {
+                await _userService.DeleteUserAsync(id);
+                return Ok();
+            }
+            catch (APIException ex)
+            {
+                List<APIResponse.Error> errors = new List<APIResponse.Error> { new APIResponse.Error { Type = ex.getType(), Message = ex.Message } };
+                return BadRequest(new APIResponse(false, errors, null));
+            }
         }
 
         [HttpGet]
         [Route("{id}")]
         public async Task<IActionResult> FetchUserAsync(String id)
         {
-            UserDTO uDTO = await _userService.FetchUserAsync(id);
-            if (uDTO == null)
-                return NotFound("User not found");
-            return Ok(uDTO);
+            try
+            {   
+                return Ok(await _userService.FetchUserAsync(id));
+            }
+            catch (APIException ex)
+            {
+                List<APIResponse.Error> errors = new List<APIResponse.Error> { new APIResponse.Error { Type = ex.getType(), Message = ex.Message } };
+                return BadRequest(new APIResponse(false, errors, null));
+            }
         }
 
         [HttpGet]
         public async Task<IActionResult> FetchAllUsersAsync()
         {
-            return Ok(await _userService.FetchAllUsersAsync());
+            try
+            {
+                return Ok(await _userService.FetchAllUsersAsync());
+            }
+            catch (APIException ex)
+            {
+                List<APIResponse.Error> errors = new List<APIResponse.Error> { new APIResponse.Error { Type = ex.getType(), Message = ex.Message } };
+                return BadRequest(new APIResponse(false, errors, null));
+            }
         }
 
         [HttpGet]
         [Route("role")]
         public async Task<IActionResult> FetchAllRolesAsync()
         {
-            return Ok(await _userService.FetchAllRolesAsync());
+            try
+            {
+                return Ok(await _userService.FetchAllRolesAsync());
+            }
+            catch (APIException ex)
+            {
+                List<APIResponse.Error> errors = new List<APIResponse.Error> { new APIResponse.Error { Type = ex.getType(), Message = ex.Message } };
+                return BadRequest(new APIResponse(false, errors, null));
+            }
         }
     }
 }
