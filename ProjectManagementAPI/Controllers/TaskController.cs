@@ -64,6 +64,21 @@ namespace ProjectManagementAPI.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("{taskId}")]
+        public async Task<IActionResult> GetTaskAsync(int projectId, int taskId)
+        {
+            try
+            {
+                return Ok(new APIResponse(true, new List<APIResponse.Error>(), await _taskService.GetTaskAsync(projectId, taskId)));
+            }
+            catch
+            {
+                List<APIResponse.Error> errors = new List<APIResponse.Error> { new APIResponse.Error { Type = ex.Type, Message = ex.Message } };
+                return NotFound(new APIResponse(false, errors, null));
+            }
+        }
+
 
 
     }
