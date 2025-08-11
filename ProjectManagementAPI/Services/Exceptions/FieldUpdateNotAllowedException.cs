@@ -2,7 +2,11 @@
 {
     public class FieldUpdateNotAllowedException : APIException
     {
-        public new String Type { get { return "FieldUpdateNotAllowedException"; } }
         public FieldUpdateNotAllowedException(String message) :base(message){ }
+
+        public override String getType()
+        {
+            return "FieldUpdateNotAllowedException";
+        }
     }
 }

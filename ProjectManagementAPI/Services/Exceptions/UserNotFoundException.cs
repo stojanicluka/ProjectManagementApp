@@ -2,7 +2,11 @@
 {
     public class UserNotFoundException : APIException 
     {
-        public new String Type { get { return "UserNotFoundException"; } }
         public UserNotFoundException(String message) :base(message) { }
+
+        public override String getType()
+        {
+            return "UserNotFoundException";
+        }
     }
 }

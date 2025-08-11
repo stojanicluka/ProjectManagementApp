@@ -3,6 +3,7 @@ using ProjectManagementAPI.DTO;
 using ProjectManagementAPI.Models;
 using ProjectManagementAPI.Models.Enums;
 using ProjectManagementAPI.Services.Exceptions;
+using System.Text.Json;
 
 namespace ProjectManagementAPI.Services
 {
@@ -35,7 +36,7 @@ namespace ProjectManagementAPI.Services
 
             ProjectTask task = new ProjectTask(dto.Title, dto.Description, dto.Deadline, dto.Priority, dto.Status, project, user);
             _dbContext.Tasks.Add(task);
-            if (_dbContext.SaveChanges() == 0)
+            if (await _dbContext.SaveChangesAsync() == 0)
                 throw new DatabaseException("Error when writing to database");
         }
 
@@ -53,22 +54,23 @@ namespace ProjectManagementAPI.Services
                 switch (p.Field)
                 {
                     case "Title":
-                        task.Title = (String)p.Value;
+                        task.Title = ((JsonElement)p.Value).Deserialize<String>();
                         break;
                     case "Description":
-                        task.Description = (String)p.Value;
+                        task.Description = ((JsonElement)p.Value).Deserialize<String>();
                         break;
                     case "Deadline":
-                        task.Deadline = (DateTime)p.Value;
+                        task.Deadline = ((JsonElement)p.Value).Deserialize<DateTime>();
                         break;
                     case "Priority":
-                        task.Priority = (Priority)p.Value;
+                        task.Priority = ((JsonElement)p.Value).Deserialize<Priority>();
                         break;
                     case "Status":
-                        task.Status = (Status)p.Value;
+                        task.Status = ((JsonElement)p.Value).Deserialize<Status>();
                         break;
                     case "UserId":
-                        ApplicationUser? user = await _userManager.FindByIdAsync((String)p.Value);
+                        String userId = ((JsonElement)p.Value).Deserialize<String>();
+                        ApplicationUser? user = await _userManager.FindByIdAsync(userId);
                         if (user == null)
                             throw new UserNotFoundException("User with ID " + (String)p.Value + " not found");
                         task.AssignedTo = user;
@@ -80,8 +82,7 @@ namespace ProjectManagementAPI.Services
             }
 
 
-            if (_dbContext.SaveChanges() == 0)
-                throw new DatabaseException("Error when writing to database");
+            await _dbContext.SaveChangesAsync();
         }
 
         public async Task DeleteTaskAsync(int projectId, int taskId)

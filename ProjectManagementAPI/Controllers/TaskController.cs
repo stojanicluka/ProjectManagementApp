@@ -27,8 +27,8 @@ namespace ProjectManagementAPI.Controllers
             }
             catch (APIException ex)
             {
-                List<APIResponse.Error> errors = new List<APIResponse.Error> { new APIResponse.Error { Type = ex.Type, Message = ex.Message } };
-                return NotFound(new APIResponse(false, errors, null));
+                List<APIResponse.Error> errors = new List<APIResponse.Error> { new APIResponse.Error { Type = ex.getType(), Message = ex.Message } };
+                return BadRequest(new APIResponse(false, errors, null));
             }
 
         }
@@ -44,8 +44,8 @@ namespace ProjectManagementAPI.Controllers
             }
             catch (APIException ex)
             {
-                List<APIResponse.Error> errors = new List<APIResponse.Error> { new APIResponse.Error { Type = ex.Type, Message = ex.Message } };
-                return NotFound(new APIResponse(false, errors, null));
+                List<APIResponse.Error> errors = new List<APIResponse.Error> { new APIResponse.Error { Type = ex.getType(), Message = ex.Message } };
+                return BadRequest(new APIResponse(false, errors, null));
             }
         }
 
@@ -60,8 +60,8 @@ namespace ProjectManagementAPI.Controllers
             }
             catch (APIException ex)
             {
-                List<APIResponse.Error> errors = new List<APIResponse.Error> { new APIResponse.Error { Type = ex.Type, Message = ex.Message } };
-                return NotFound(new APIResponse(false, errors, null));
+                List<APIResponse.Error> errors = new List<APIResponse.Error> { new APIResponse.Error { Type = ex.getType(), Message = ex.Message } };
+                return BadRequest(new APIResponse(false, errors, null));
             }
         }
 
@@ -75,8 +75,8 @@ namespace ProjectManagementAPI.Controllers
             }
             catch (APIException ex)
             {
-                List<APIResponse.Error> errors = new List<APIResponse.Error> { new APIResponse.Error { Type = ex.Type, Message = ex.Message } };
-                return NotFound(new APIResponse(false, errors, null));
+                List<APIResponse.Error> errors = new List<APIResponse.Error> { new APIResponse.Error { Type = ex.getType(), Message = ex.Message } };
+                return BadRequest(new APIResponse(false, errors, null));
             }
         }
 
@@ -90,8 +90,8 @@ namespace ProjectManagementAPI.Controllers
             }
             catch (APIException ex)
             {
-                List<APIResponse.Error> errors = new List<APIResponse.Error> { new APIResponse.Error { Type = ex.Type, Message = ex.Message } };
-                return NotFound(new APIResponse(false, errors, null));
+                List<APIResponse.Error> errors = new List<APIResponse.Error> { new APIResponse.Error { Type = ex.getType(), Message = ex.Message } };
+                return BadRequest(new APIResponse(false, errors, null));
             }
         }
 

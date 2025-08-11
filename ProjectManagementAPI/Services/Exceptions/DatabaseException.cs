@@ -2,7 +2,11 @@
 {
     public class DatabaseException : APIException
     {
-        public new String Type { get { return "DatabaseException"; } }
         public DatabaseException(String message) : base(message) { }
+
+        public override String getType()
+        {
+            return "DatabaseException";
+        }
     }
 }

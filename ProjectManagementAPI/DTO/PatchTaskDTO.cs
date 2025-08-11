@@ -6,8 +6,9 @@ namespace ProjectManagementAPI.DTO
     {
         public class Patch
         {
-            public string Field;
-            public Object Value;
+            [Required]
+            public String Field { get; set; }
+            public Object Value { get; set; }
         }
 
         [Required]
