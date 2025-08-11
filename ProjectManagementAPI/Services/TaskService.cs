@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using ProjectManagementAPI.DTO;
 using ProjectManagementAPI.Models;
 using ProjectManagementAPI.Models.Enums;
@@ -106,16 +107,16 @@ namespace ProjectManagementAPI.Services
                 throw new ProjectNotFoundException("Project with ID" + projectId.ToString() + " not found");
 
 
-            ProjectTask? task = await _dbContext.Tasks.FindAsync(taskId);
+            ProjectTask? task = await _dbContext.Tasks.Include(task=>task.AssignedTo).Where(task=> task.Id==taskId).FirstAsync();
             if (task == null)
                 throw new TaskNotFoundException("Task with id " + taskId.ToString() + " not found");
 
             return new GetTaskDTO 
-            { 
-                Id = task.Id,
-                Description = task.Description,
+            {
                 Deadline = task.Deadline,
                 Priority = task.Priority,
+                Description = task.Description,
+                Id = task.Id,
                 Status = task.Status,
                 Title = task.Title,
                 userId = task.AssignedTo.Id
