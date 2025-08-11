@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ProjectManagementAPI.DTO;
 using ProjectManagementAPI.Services;
+using ProjectManagementAPI.Services.Exceptions;
 
 namespace ProjectManagementAPI.Controllers
 {
@@ -18,16 +19,16 @@ namespace ProjectManagementAPI.Controllers
 
         [HttpPost]
         [Route("register")]
-        public async Task<IActionResult> RegisterUserAsync(UserDTO uDTO)
+        public async Task<IActionResult> RegisterUserAsync(RegisterUserDTO dto)
         {
-            switch (await _userService.RegisterUserAsync(uDTO))
+            try
             {
-                case UserService.RegistrationResult.USERNAME_EXISTS:
-                    return Conflict("Username already exists");
-                case UserService.RegistrationResult.WRONG_EMAIL_FORMAT:
-                    return BadRequest("Wrong email address format");
-                default:
-                    return Ok();
+                return Ok(new APIResponse(await _userService.RegisterUserAsync(dto)));
+            }
+            catch (APIException ex)
+            {
+                List<APIResponse.Error> errors = new List<APIResponse.Error> { new APIResponse.Error { Type = ex.getType(), Message = ex.Message } };
+                return BadRequest(new APIResponse(false, errors, null));
             }
         }
 

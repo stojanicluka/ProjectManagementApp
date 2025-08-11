@@ -2,8 +2,12 @@
 using Microsoft.EntityFrameworkCore;
 using ProjectManagementAPI.DTO;
 using ProjectManagementAPI.Models;
+using ProjectManagementAPI.Models.Enums;
+using ProjectManagementAPI.Services.Exceptions;
 using System.Reflection.Metadata.Ecma335;
+using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace ProjectManagementAPI.Services
 {
@@ -13,130 +17,141 @@ namespace ProjectManagementAPI.Services
         private UserManager<ApplicationUser> _userManager;
         private RoleManager<IdentityRole> _roleManager;
 
-        public enum RegistrationResult { SUCCESS, USERNAME_EXISTS, WRONG_EMAIL_FORMAT }
-        public enum RoleAssignmentResult { SUCCESS, USER_NOT_FOUND, ROLE_NOT_FOUND, ASSIGNMENT_FAILED }
-        public enum UserUpdateResult { SUCCESS, USER_NOT_FOUND, WRONG_EMAIL_FORMAT, USERNAME_EXISTS, USER_UPDATE_FAILED }
-        public enum PasswordChangeResult { SUCCESS, USER_NOT_FOUND, WRONG_CURRENT_PASSWORD }
-
         public UserService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
             _roleManager = roleManager;
         }
 
-        public async Task<RegistrationResult> RegisterUserAsync(UserDTO uDTO)
+        public async Task<StringIdDTO> RegisterUserAsync(RegisterUserDTO dto)
         {
-            if (await _userManager.FindByNameAsync(uDTO.Username) != null)
-                return RegistrationResult.USERNAME_EXISTS;
+            if (await _userManager.FindByNameAsync(dto.Username) != null)
+                throw new DuplicateUsernameException("Username " + dto.Username + " already exists");
 
-            if (!Regex.IsMatch(uDTO.Email, emailPattern))
-                return RegistrationResult.WRONG_EMAIL_FORMAT;
+            if (!Regex.IsMatch(dto.Email, emailPattern))
+                throw new InvalidEmailFormatException("Email is not in valid format");
 
             ApplicationUser user = new ApplicationUser();
-            user.UserName = uDTO.Username;
-            user.Email = uDTO.Email;
-            user.FirstName = uDTO.FirstName;
-            user.LastName = uDTO.LastName;
+            user.UserName = dto.Username;
+            user.Email = dto.Email;
+            user.FirstName = dto.FirstName;
+            user.LastName = dto.LastName;
 
-            await _userManager.CreateAsync(user, uDTO.Password);
-            await _userManager.AddToRoleAsync(user, "INACTIVE");
+            IdentityResult registrationResult = await _userManager.CreateAsync(user, dto.Password);
+            if (!registrationResult.Succeeded)
+                throw new RegistrationErrorException(registrationResult.Errors.Count() > 0 ? registrationResult.Errors.First().Description : "Unknown registration error");
 
-            return RegistrationResult.SUCCESS;
+            IdentityResult roleAssignmentResult = await _userManager.AddToRoleAsync(user, "INACTIVE");
+            if (roleAssignmentResult.Errors.Count() > 0)
+                throw new RegistrationErrorException(roleAssignmentResult.Errors.Count() > 0 ? roleAssignmentResult.Errors.First().Description : "Unknown registration error");
+
+            return new StringIdDTO { Id = user.Id };
         }
 
 
-        public async Task<RoleAssignmentResult> AssignRoleAsync(String userID, String roleID)
+        public async Task AssignRoleAsync(String userID, String roleID)
         {
             ApplicationUser? user = await _userManager.FindByIdAsync(userID);
             if (user == null)
-                return RoleAssignmentResult.USER_NOT_FOUND;
+                throw new UserNotFoundException("User with ID " +  userID + " does not exist");
 
             IdentityRole? role = await _roleManager.FindByIdAsync(roleID);
             if (role == null)
-                return RoleAssignmentResult.ROLE_NOT_FOUND;
+                throw new RoleNotFoundException("Role with ID " + userID + " does not exist");
 
             IList<String> roles = await _userManager.GetRolesAsync(user);
             await _userManager.RemoveFromRolesAsync(user, roles);
-            if (!(await _userManager.AddToRoleAsync(user, role.Name)).Succeeded)
-                return RoleAssignmentResult.ASSIGNMENT_FAILED;
 
-            return RoleAssignmentResult.SUCCESS;
+            if (!(await _userManager.AddToRoleAsync(user, role.Name)).Succeeded)
+                throw new RoleAssignmentError("Unknown role assignment error");
         }
 
-        public async Task<List<RoleDTO>> FetchAllRolesAsync()
+        public async Task<List<GetRoleDTO>> FetchAllRolesAsync()
         {
-            return await _roleManager.Roles.Select(role => new RoleDTO()
+            return await _roleManager.Roles.Select(role => new GetRoleDTO()
             {
                 Id = role.Id,
                 Name = role.Name
             }).ToListAsync();
         }
 
-        public async Task<UserUpdateResult> UpdateUserAsync(String id, UserDTO uDTO)
+        public async Task UpdateUserAsync(String id, PatchDTO dto)
         {
             ApplicationUser? user = await _userManager.FindByIdAsync(id);
             if (user == null)
-                return UserUpdateResult.USER_NOT_FOUND;
+                throw new UserNotFoundException("User with ID " + id + " does not exist");
 
-            if (await _userManager.FindByNameAsync(uDTO.Username) != null)
-                return UserUpdateResult.USERNAME_EXISTS;
 
-            if (!Regex.IsMatch(uDTO.Email, emailPattern))
-                return UserUpdateResult.WRONG_EMAIL_FORMAT;
-
-            user.FirstName = uDTO.FirstName;
-            user.LastName = uDTO.LastName;
-            user.Email = uDTO.Email;
-            user.UserName = uDTO.Username;
+            foreach (PatchDTO.Patch p in dto.Patches)
+            {
+                switch (p.Field)
+                {
+                    case "FirstName":
+                        user.FirstName = ((JsonElement)p.Value).Deserialize<String>();
+                        break;
+                    case "LastName":
+                        user.LastName = ((JsonElement)p.Value).Deserialize<String>();
+                        break;
+                    case "Username":
+                        user.UserName = ((JsonElement)p.Value).Deserialize<String>();
+                        break;
+                    case "Email":
+                        String email = ((JsonElement)p.Value).Deserialize<String>();
+                        if (!Regex.IsMatch(email, emailPattern))
+                            throw new InvalidEmailFormatException("Email is not in valid format");
+                        user.Email = email;
+                        break;
+                    default:
+                        throw new FieldUpdateNotAllowedException("Field " + p.Field + " can't be modified");
+                }
+            }
 
             await _userManager.UpdateAsync(user);
-
-            return UserUpdateResult.SUCCESS;
         }
 
-        public async Task<PasswordChangeResult> ChangePasswordAsync(String id, PasswordDTO pDTO)
+        public async Task ChangePasswordAsync(String id, PasswordDTO pDTO)
         {
             ApplicationUser? user = await _userManager.FindByIdAsync(id);
             if (user == null)
-                return PasswordChangeResult.USER_NOT_FOUND;
+                throw new UserNotFoundException("User with ID " + id + " does not exist");
 
             if (await _userManager.CheckPasswordAsync(user, pDTO.OldPassword))
-                return PasswordChangeResult.WRONG_CURRENT_PASSWORD;
+                throw new WrongCurrentPasswordException("Wrong current password");
 
-            await _userManager.ChangePasswordAsync(user, pDTO.OldPassword, pDTO.NewPassword);
-
-            return PasswordChangeResult.SUCCESS;
+            IdentityResult result = await _userManager.ChangePasswordAsync(user, pDTO.OldPassword, pDTO.NewPassword);
+            if (result.Errors.Count() > 0)
+                throw new PasswordChangeError(result.Errors.First().Description);
         }
 
-        public async Task<PasswordChangeResult> ResetPasswordAsync(String id, PasswordDTO pDTO)
+        public async Task ResetPasswordAsync(String id, PasswordDTO pDTO)
         {
             ApplicationUser? user = await _userManager.FindByIdAsync(id);
             if (user == null)
-                return PasswordChangeResult.USER_NOT_FOUND;
+                throw new UserNotFoundException("User with ID " + id + " does not exist");
 
             String token = await _userManager.GeneratePasswordResetTokenAsync(user);
-            await _userManager.ResetPasswordAsync(user, token, pDTO.NewPassword);
-
-            return PasswordChangeResult.SUCCESS;
+            IdentityResult result = await _userManager.ResetPasswordAsync(user, token, pDTO.NewPassword);
+            if (result.Errors.Count() > 0)
+                throw new PasswordChangeError(result.Errors.First().Description);
         }
 
-        public async Task<bool> DeleteUserAsync(String id)
+        public async Task DeleteUserAsync(String id)
         {
             ApplicationUser? user = await _userManager.FindByIdAsync(id);
             if (user == null)
-                return false;
+                throw new UserNotFoundException("User with ID " + id + " does not exist");
 
-            await _userManager.DeleteAsync(user);
-            return true;
+            if (!(await _userManager.DeleteAsync(user)).Succeeded)
+                throw new DatabaseException("Error when deleting from a database");
         }
 
-        public async Task<UserDTO> FetchUserAsync(String id)
+        public async Task<GetUserDTO> FetchUserAsync(String id)
         {
             ApplicationUser? user = await _userManager.FindByIdAsync(id);
             if (user == null)
-                return null;
+                throw new UserNotFoundException("User with ID " + id + " does not exist");
 
-            UserDTO uDTO = new UserDTO
+            GetUserDTO uDTO = new GetUserDTO
             {
                 Id = user.Id,
                 FirstName = user.FirstName,
@@ -149,20 +164,20 @@ namespace ProjectManagementAPI.Services
             if (userRoles.Count != 0)
             {
                 IdentityRole role = await _roleManager.FindByNameAsync(userRoles[0]);
-                uDTO.Role = new RoleDTO { Id = role.Id, Name = role.Name };
+                uDTO.Role = new GetRoleDTO { Id = role.Id, Name = role.Name };
             }
 
             return uDTO;
         }
 
-        public async Task<List<UserDTO>> FetchAllUsersAsync()
+        public async Task<List<GetUserDTO>> FetchAllUsersAsync()
         {
             List<ApplicationUser> users = await _userManager.Users.Select(user => user).ToListAsync();
-            List<UserDTO> uDTOs = new List<UserDTO>();
+            List<GetUserDTO> uDTOs = new List<GetUserDTO>();
 
             foreach (ApplicationUser user in users)
             {
-                UserDTO uDTO = new UserDTO
+                GetUserDTO uDTO = new GetUserDTO
                 {
                     Id = user.Id,
                     FirstName = user.FirstName,
@@ -175,7 +190,7 @@ namespace ProjectManagementAPI.Services
                 if (roles.Count > 0)
                 {
                     IdentityRole role = await _roleManager.FindByNameAsync(roles[0]);
-                    uDTO.Role = new RoleDTO { Id = role.Id, Name = role.Name };    
+                    uDTO.Role = new GetRoleDTO { Id = role.Id, Name = role.Name };    
                 }
 
                 uDTOs.Add(uDTO);
