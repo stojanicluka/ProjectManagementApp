@@ -64,14 +64,15 @@ namespace ProjectManagementAPI.Services
             }
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task DeleteAsync(int id)
         {
             Project? project = await _context.Projects.FindAsync(id);
-            if (project == null) return false;
+            if (project == null)
+                throw new ProjectNotFoundException("Project with the id " + id.ToString() + " does not exist");
 
             _context.Projects.Remove(project);
-            await _context.SaveChangesAsync();
-            return true;
+            if (await _context.SaveChangesAsync() == 0)
+                throw new DatabaseException("Error when deleting from a database");
         }
 
         public async Task<List<ProjectDTO>> FetchAllAsync()
