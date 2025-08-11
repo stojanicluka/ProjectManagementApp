@@ -4,6 +4,7 @@ using ProjectManagementAPI.DTO;
 using ProjectManagementAPI.Models;
 using ProjectManagementAPI.Models.Enums;
 using ProjectManagementAPI.Services.Exceptions;
+using System.Data;
 using System.Reflection.Metadata.Ecma335;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -57,7 +58,7 @@ namespace ProjectManagementAPI.Services
 
             IdentityRole? role = await _roleManager.FindByIdAsync(dto.Id);
             if (role == null)
-                throw new RoleNotFoundException("Role with ID " + userID + " does not exist");
+                throw new RoleNotFoundException("Role with ID " + dto.Id + " does not exist");
 
             IList<String> roles = await _userManager.GetRolesAsync(user);
             await _userManager.RemoveFromRolesAsync(user, roles);
@@ -190,7 +191,7 @@ namespace ProjectManagementAPI.Services
                 if (roles.Count > 0)
                 {
                     IdentityRole role = await _roleManager.FindByNameAsync(roles[0]);
-                    uDTO.Role = new GetRoleDTO { Id = role.Id, Name = role.Name };    
+                    uDTO.Role = new GetRoleDTO { Id = role.Id, Name = role.Name };
                 }
 
                 uDTOs.Add(uDTO);
