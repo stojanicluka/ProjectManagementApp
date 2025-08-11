@@ -41,8 +41,7 @@ namespace ProjectManagementAPI.Services
 
         public async Task UpdateTaskAsync(int projectId, int taskId, PatchTaskDTO dto)
         {
-            Project? project = await FindProject(projectId);
-            if (project == null)
+            if (await FindProject(projectId) == null)
                 throw new ProjectNotFoundException("Project with " + projectId.ToString() + " not found");
 
             ProjectTask? task = await _dbContext.Tasks.FindAsync(taskId);
@@ -83,6 +82,21 @@ namespace ProjectManagementAPI.Services
 
             if (_dbContext.SaveChanges() == 0)
                 throw new DatabaseException("Error when writing to database");
+        }
+
+        public async Task DeleteTaskAsync(int projectId, int taskId)
+        {
+            if (await FindProject(projectId) == null)
+                throw new ProjectNotFoundException("Project with " + projectId.ToString() + " not found");
+
+
+            ProjectTask? task = await _dbContext.Tasks.FindAsync(taskId);
+            if (task == null)
+                throw new TaskNotFoundException("Task with id " + taskId.ToString() + " not found");
+
+            _dbContext.Tasks.Remove(task);
+            if (await _dbContext.SaveChangesAsync() == 0)
+                throw new DatabaseException("Error when deleting from database");
         }
     }
 }
