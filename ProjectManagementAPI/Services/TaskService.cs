@@ -24,7 +24,7 @@ namespace ProjectManagementAPI.Services
             return await _dbContext.Projects.FindAsync(projectId);
         }
 
-        public async Task CreateTaskAsync(int projectId, CreateTaskDTO dto)
+        public async Task CreateTaskAsync(CreateTaskDTO dto)
         {
             Project? project = await FindProject(projectId);
             if (project == null) 
