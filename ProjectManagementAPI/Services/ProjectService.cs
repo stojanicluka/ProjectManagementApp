@@ -45,10 +45,10 @@ namespace ProjectManagementAPI.Services
                         project.Description = ((JsonElement)p.Value).Deserialize<String>();
                         break;
                     case "StartDate":
-                        project.Deadline = ((JsonElement)p.Value).Deserialize<DateTime>();
+                        project.StartDate = ((JsonElement)p.Value).Deserialize<DateTime>();
                         break;
                     case "EndDate":
-                        project.Deadline = ((JsonElement)p.Value).Deserialize<DateTime>();
+                        project.EndDate = ((JsonElement)p.Value).Deserialize<DateTime>();
                         break;
                     case "Deadline":
                         project.Deadline = ((JsonElement)p.Value).Deserialize<DateTime>();
