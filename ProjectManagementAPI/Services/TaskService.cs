@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProjectManagementAPI.DTO;
 using ProjectManagementAPI.Models;
@@ -41,11 +42,8 @@ namespace ProjectManagementAPI.Services
                 throw new DatabaseException("Error when writing to database");
         }
 
-        public async Task UpdateTaskAsync(int projectId, int taskId, PatchDTO dto)
+        public async Task UpdateTaskAsync(int taskId, PatchDTO dto)
         {
-            if (await FindProject(projectId) == null)
-                throw new ProjectNotFoundException("Project with id " + projectId.ToString() + " not found");
-
             ProjectTask? task = await _dbContext.Tasks.FindAsync(taskId);
             if (task == null)
                 throw new TaskNotFoundException("Task with id " + taskId.ToString() + " not found");
@@ -86,12 +84,8 @@ namespace ProjectManagementAPI.Services
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task DeleteTaskAsync(int projectId, int taskId)
+        public async Task DeleteTaskAsync(int taskId)
         {
-            if (await FindProject(projectId) == null)
-                throw new ProjectNotFoundException("Project with ID " + projectId.ToString() + " not found");
-
-
             ProjectTask? task = await _dbContext.Tasks.FindAsync(taskId);
             if (task == null)
                 throw new TaskNotFoundException("Task with id " + taskId.ToString() + " not found");
@@ -101,17 +95,18 @@ namespace ProjectManagementAPI.Services
                 throw new DatabaseException("Error when deleting from database");
         }
 
-        public async Task<GetTaskDTO> GetTaskAsync(int projectId, int taskId)
+        public async Task<GetTaskDTO> GetTaskAsync(int taskId)
         {
-            if (await FindProject(projectId) == null)
-                throw new ProjectNotFoundException("Project with ID" + projectId.ToString() + " not found");
+            IQueryable<ProjectTask> query = _dbContext.Tasks.Include(task => task.AssignedTo).Include(task => task.Project)
+                .Where(task => task.Id == taskId);
 
-
-            ProjectTask? task = await _dbContext.Tasks.Include(task=>task.AssignedTo).Where(task=> task.Id==taskId).FirstAsync();
-            if (task == null)
+            if (query.Count() == 0)
                 throw new TaskNotFoundException("Task with id " + taskId.ToString() + " not found");
 
-            return new GetTaskDTO 
+
+            ProjectTask task = await query.FirstAsync();
+                
+            return new GetTaskDTO
             {
                 Deadline = task.Deadline,
                 Priority = task.Priority,
@@ -119,17 +114,22 @@ namespace ProjectManagementAPI.Services
                 Id = task.Id,
                 Status = task.Status,
                 Title = task.Title,
-                userId = task.AssignedTo.Id
+                UserId = task.AssignedTo.Id,
+                ProjectId = task.Project.Id
             };
         }
 
-        public async Task<List<GetTaskDTO>> GetAllProjectTasksAsync(int projectId)
+        public async Task<List<GetTaskDTO>> GetAllProjectUserTasksAsync(int? projectId, String? userId)
         {
-            Project? project = await FindProject(projectId);
-            if (project == null)
-                throw new ProjectNotFoundException("Project with ID" + projectId.ToString() + " not found");
+            IQueryable<ProjectTask> query = _dbContext.Tasks;
 
-            return _dbContext.Tasks.Where(task => task.Project == project).Select(task => new GetTaskDTO
+            if (projectId != null)
+                query = query.Where(task => task.Project.Id == projectId);
+
+            if (userId != null)
+                query = query.Where(task => task.AssignedTo.Id == userId);
+
+            return await query.Select(task => new GetTaskDTO
             {
                 Deadline = task.Deadline,
                 Priority = task.Priority,
@@ -137,8 +137,9 @@ namespace ProjectManagementAPI.Services
                 Id = task.Id,
                 Status = task.Status,
                 Title = task.Title,
-                userId = task.AssignedTo.Id
-            }).ToList();
+                UserId = task.AssignedTo.Id,
+                ProjectId = task.Project.Id
+            }).ToListAsync();
         }
     }
 }
