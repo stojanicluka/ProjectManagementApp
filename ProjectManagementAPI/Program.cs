@@ -35,8 +35,8 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero,
 
-        ValidIssuer = "ProjectManagement",
-        ValidAudience = "Employees",
+        ValidIssuer = builder.Configuration.GetValue<string>("JWT:Issuer"),
+        ValidAudience = builder.Configuration.GetValue<string>("JWT:Audience"),
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetValue<string>("JWT:SigningKey")))
     };
 });

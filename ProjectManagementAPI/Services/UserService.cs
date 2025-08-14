@@ -75,8 +75,8 @@ namespace ProjectManagementAPI.Services
             };
 
             JwtSecurityToken token = new JwtSecurityToken(
-                issuer: "ProjectManagement",
-                audience: "Employees",
+                issuer: _configuration["JWT:Issuer"],
+                audience: _configuration["JWT:Audience"],
                 signingCredentials: credentials,
                 expires: DateTime.UtcNow.AddHours(1),
                 claims: claims
