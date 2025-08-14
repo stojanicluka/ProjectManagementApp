@@ -1,11 +1,15 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using ProjectManagementAPI.DTO;
 using ProjectManagementAPI.Models;
 using ProjectManagementAPI.Models.Enums;
 using ProjectManagementAPI.Services.Exceptions;
 using System.Data;
+using System.IdentityModel.Tokens.Jwt;
 using System.Reflection.Metadata.Ecma335;
+using System.Security.Claims;
+using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -17,11 +21,13 @@ namespace ProjectManagementAPI.Services
         private static String emailPattern = "([a-z]|[A-Z]|[0-9])+@([a-z]|[A-Z]|[0-9])+\\.([a-z]|[A-Z])+";
         private UserManager<ApplicationUser> _userManager;
         private RoleManager<IdentityRole> _roleManager;
+        private IConfiguration _configuration;
 
-        public UserService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        public UserService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
         {
             _userManager = userManager;
             _roleManager = roleManager;
+            _configuration = configuration;
         }
 
         public async Task<StringIdDTO> RegisterUserAsync(RegisterUserDTO dto)
@@ -47,6 +53,36 @@ namespace ProjectManagementAPI.Services
                 throw new RegistrationErrorException(roleAssignmentResult.Errors.Count() > 0 ? roleAssignmentResult.Errors.First().Description : "Unknown registration error");
 
             return new StringIdDTO { Id = user.Id };
+        }
+
+        public async Task<String> LoginAsync(LoginDTO dto)
+        {
+            ApplicationUser? user = await _userManager.FindByNameAsync(dto.Username);
+            if (user == null)
+                throw new UserNotFoundException("User with username " + dto.Username + " does not exist");
+
+            if (!await _userManager.CheckPasswordAsync(user, dto.Password))
+                throw new WrongCurrentPasswordException("Wrong password");
+
+            SymmetricSecurityKey key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes( _configuration["JWT:SigningKey"]));
+
+            SigningCredentials credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
+
+            Claim[] claims = new Claim[]
+            {
+                new Claim(ClaimTypes.Name, dto.Username),
+                new Claim(ClaimTypes.Role, _userManager.GetRolesAsync(user).Result.FirstOrDefault("NONE"))
+            };
+
+            JwtSecurityToken token = new JwtSecurityToken(
+                issuer: "ProjectManagement",
+                audience: "Employees",
+                signingCredentials: credentials,
+                expires: DateTime.UtcNow.AddHours(1),
+                claims: claims
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
 
