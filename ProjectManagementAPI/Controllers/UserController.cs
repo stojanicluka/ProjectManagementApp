@@ -34,9 +34,17 @@ namespace ProjectManagementAPI.Controllers
 
         [HttpPost]
         [Route("login")]
-        public async Task<IActionResult> LoginAsync(LoginDTO lDTO)
+        public async Task<IActionResult> LoginAsync(LoginDTO dto)
         {
-            return NotFound("Debug: Endpoint not implemented");
+            try
+            {
+                return Ok(new APIResponse(await _userService.LoginAsync(dto)));
+            }
+            catch (APIException ex)
+            {
+                List<APIResponse.Error> errors = new List<APIResponse.Error> { new APIResponse.Error { Type = ex.getType(), Message = ex.Message } };
+                return BadRequest(new APIResponse(false, errors, null));
+            }
         }
 
         [HttpPatch]
