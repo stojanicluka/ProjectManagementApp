@@ -17,6 +17,7 @@ namespace ProjectManagementAPI.Controllers
             _service = service;
         }
 
+        [Authorize(Roles = "ADMIN,MANAGER")]
         [HttpPost]
         public async Task<IActionResult> CreateProject([FromBody] CreateProjectDTO dto)
         {

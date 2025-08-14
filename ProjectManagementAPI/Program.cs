@@ -72,7 +72,7 @@ var app = builder.Build();
 
 // Initialize roles
 
-var roles = new List<string> { "ADMIN", "MANAGER", "TEAM MEMBER", "INACTIVE" };
+var roles = new List<string> { "ADMIN", "MANAGER", "TEAM_MEMBER", "INACTIVE" };
 using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
