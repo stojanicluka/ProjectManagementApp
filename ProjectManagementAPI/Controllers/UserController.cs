@@ -46,7 +46,7 @@ namespace ProjectManagementAPI.Controllers
             try
             {
                 await _userService.UpdateUserAsync(id, dto);
-                return Ok();
+                return Ok(new APIResponse());
             }
             catch (APIException ex)
             {
@@ -62,7 +62,7 @@ namespace ProjectManagementAPI.Controllers
             try
             {
                 await _userService.ChangePasswordAsync(id, dto);
-                return Ok();
+                return Ok(new APIResponse());
             }
             catch (APIException ex)
             {
@@ -78,7 +78,7 @@ namespace ProjectManagementAPI.Controllers
             try
             {
                 await _userService.ResetPasswordAsync(id, dto);
-                return Ok();
+                return Ok(new APIResponse());
             }
             catch (APIException ex)
             {
@@ -94,7 +94,7 @@ namespace ProjectManagementAPI.Controllers
             try
             {
                 await _userService.AssignRoleAsync(userID, dto);
-                return Ok();
+                return Ok(new APIResponse());
             }
             catch (APIException ex)
             {
@@ -110,7 +110,7 @@ namespace ProjectManagementAPI.Controllers
             try
             {
                 await _userService.DeleteUserAsync(id);
-                return Ok();
+                return Ok(new APIResponse());
             }
             catch (APIException ex)
             {
