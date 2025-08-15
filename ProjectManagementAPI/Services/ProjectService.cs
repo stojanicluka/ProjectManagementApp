@@ -97,7 +97,7 @@ namespace ProjectManagementAPI.Services
             if (project == null)
                 throw new ProjectNotFoundException("Project with id " + id.ToString() + " does not exist.");
 
-            ApplicationUser user = await _context.Users.FindAsync(username);
+            ApplicationUser user = await _userManager.FindByNameAsync(username);
 
             string role = (await _userManager.GetRolesAsync(user)).FirstOrDefault("NONE");
             if (role == "TEAM_MEMBER" && !_context.Tasks.Where(task => task.Project.Id == id && task.AssignedTo.UserName == username).Any())

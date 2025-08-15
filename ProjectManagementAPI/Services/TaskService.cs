@@ -108,7 +108,7 @@ namespace ProjectManagementAPI.Services
 
             ProjectTask task = await query.FirstAsync();
 
-            ApplicationUser? user = await _dbContext.Users.FindAsync(username);
+            ApplicationUser? user = await _userManager.FindByNameAsync(username);
             if (task.AssignedTo != user)
                 throw new UnauthorizedException("User not authorized to fetch task not assigned to him");
                 
