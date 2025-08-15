@@ -32,13 +32,14 @@ namespace ProjectManagementAPI.Controllers
             }
         }
 
+        [Authorize(Roles = "ADMIN,MANAGER,TEAM_MEMBER")]
         [HttpGet]
         [Route("{id}")]
         public async Task<IActionResult> FetchProject(int id)
         {
             try
             {
-                return Ok(new APIResponse(await _service.FetchAsync(id)));
+                return Ok(new APIResponse(await _service.FetchAsync(User.Identity.Name, id)));
             }
             catch (APIException ex)
             {
@@ -47,7 +48,7 @@ namespace ProjectManagementAPI.Controllers
             }
         }
 
-        [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = "ADMIN,TEAM_MANAGER")]
         [HttpGet]
         public async Task<IActionResult> FetchAllProjects()
         {
@@ -62,6 +63,7 @@ namespace ProjectManagementAPI.Controllers
             }
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpPatch]
         [Route("{id}")]
         public async Task<IActionResult> UpdateProject(int id, [FromBody] PatchDTO dto)
@@ -78,6 +80,7 @@ namespace ProjectManagementAPI.Controllers
             }
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpDelete]
         [Route("{id}")]
         public async Task<IActionResult> DeleteProject(int id)

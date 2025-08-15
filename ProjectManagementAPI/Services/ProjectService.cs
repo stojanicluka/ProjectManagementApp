@@ -12,9 +12,11 @@ namespace ProjectManagementAPI.Services
     public class ProjectService
     {
         private AppDBContext _context;
-        public ProjectService(AppDBContext context)
+        private UserManager<ApplicationUser> _userManager;
+        public ProjectService(AppDBContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         public async Task<IntegerIdDTO> CreateAsync(CreateProjectDTO dto)
@@ -89,11 +91,17 @@ namespace ProjectManagementAPI.Services
             }).ToListAsync();
         }
 
-        public async Task<GetProjectDTO> FetchAsync(int id)
+        public async Task<GetProjectDTO> FetchAsync(string username, int id)
         {
             Project? project = await _context.Projects.FindAsync(id);
             if (project == null)
                 throw new ProjectNotFoundException("Project with id " + id.ToString() + " does not exist.");
+
+            ApplicationUser user = await _context.Users.FindAsync(username);
+
+            string role = (await _userManager.GetRolesAsync(user)).FirstOrDefault("NONE");
+            if (role == "TEAM_MEMBER" && !_context.Tasks.Where(task => task.Project.Id == id && task.AssignedTo.UserName == username).Any())
+                throw new UnauthorizedException("User not authorized to fetch project with ID " + id.ToString());
 
             return new GetProjectDTO
             {
