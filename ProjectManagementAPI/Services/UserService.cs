@@ -112,11 +112,15 @@ namespace ProjectManagementAPI.Services
             }).ToListAsync();
         }
 
-        public async Task UpdateUserAsync(String id, PatchDTO dto)
+        public async Task UpdateUserAsync(string authenticatedUsername, string id, PatchDTO dto)
         {
             ApplicationUser? user = await _userManager.FindByIdAsync(id);
             if (user == null)
                 throw new UserNotFoundException("User with ID " + id + " does not exist");
+
+            ApplicationUser? authenticatedUser = await _userManager.FindByNameAsync(authenticatedUsername);
+            if ((await _userManager.GetRolesAsync(authenticatedUser)).FirstOrDefault("NONE") != "ADMIN" && user != authenticatedUser)
+                throw new UnauthorizedException("Not authorized to update other user's data");
 
 
             foreach (PatchDTO.Patch p in dto.Patches)
@@ -146,11 +150,11 @@ namespace ProjectManagementAPI.Services
             await _userManager.UpdateAsync(user);
         }
 
-        public async Task ChangePasswordAsync(String id, ChangePasswordDTO pDTO)
+        public async Task ChangePasswordAsync(string authUsername, ChangePasswordDTO pDTO)
         {
-            ApplicationUser? user = await _userManager.FindByIdAsync(id);
+            ApplicationUser? user = await _userManager.FindByNameAsync(authUsername);
             if (user == null)
-                throw new UserNotFoundException("User with ID " + id + " does not exist");
+                throw new UserNotFoundException("User with username " + authUsername + " does not exist");
 
             if (await _userManager.CheckPasswordAsync(user, pDTO.CurrentPassword))
                 throw new WrongCurrentPasswordException("Wrong current password");

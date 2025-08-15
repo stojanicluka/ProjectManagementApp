@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using ProjectManagementAPI.DTO;
 using ProjectManagementAPI.Services;
@@ -47,13 +48,14 @@ namespace ProjectManagementAPI.Controllers
             }
         }
 
+        [Authorize(Roles = "ADMIN,MANAGER,TEAM_MEMBER")]
         [HttpPatch]
         [Route("{id}")]
         public async Task<IActionResult> UpdateUserAsync(String id, PatchDTO dto)
         {
             try
             {
-                await _userService.UpdateUserAsync(id, dto);
+                await _userService.UpdateUserAsync(User.Identity.Name, id, dto);
                 return Ok(new APIResponse());
             }
             catch (APIException ex)
@@ -63,13 +65,14 @@ namespace ProjectManagementAPI.Controllers
             }
         }
 
+        [Authorize(Roles = "ADMIN,MANAGER,TEAM_MEMBER")]
         [HttpPut]
-        [Route("password/change/{id}")]
-        public async Task<IActionResult> ChangePasswordAsync(String id, ChangePasswordDTO dto)
+        [Route("password/change")]
+        public async Task<IActionResult> ChangePasswordAsync(ChangePasswordDTO dto)
         {
             try
             {
-                await _userService.ChangePasswordAsync(id, dto);
+                await _userService.ChangePasswordAsync(User.Identity.Name, dto);
                 return Ok(new APIResponse());
             }
             catch (APIException ex)
@@ -79,9 +82,10 @@ namespace ProjectManagementAPI.Controllers
             }
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpPut]
         [Route("password/reset/{id}")]
-        public async Task<IActionResult> ResetPasswordAsync(String id, ChangePasswordDTO dto)
+        public async Task<IActionResult> ResetPasswordAsync(string id, ChangePasswordDTO dto)
         {
             try
             {
@@ -95,6 +99,7 @@ namespace ProjectManagementAPI.Controllers
             }
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpPut]
         [Route("role/{userID}")]
         public async Task<IActionResult> AssignRoleAsync(String userID, StringIdDTO dto)
@@ -111,6 +116,7 @@ namespace ProjectManagementAPI.Controllers
             }
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpDelete]
         [Route("{id}")]
         public async Task<IActionResult> DeleteUserAsync(String id)
@@ -127,6 +133,7 @@ namespace ProjectManagementAPI.Controllers
             }
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpGet]
         [Route("{id}")]
         public async Task<IActionResult> FetchUserAsync(String id)
@@ -142,6 +149,7 @@ namespace ProjectManagementAPI.Controllers
             }
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpGet]
         public async Task<IActionResult> FetchAllUsersAsync()
         {
@@ -156,6 +164,7 @@ namespace ProjectManagementAPI.Controllers
             }
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpGet]
         [Route("role")]
         public async Task<IActionResult> FetchAllRolesAsync()

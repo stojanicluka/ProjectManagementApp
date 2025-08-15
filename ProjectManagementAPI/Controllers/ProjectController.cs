@@ -48,7 +48,7 @@ namespace ProjectManagementAPI.Controllers
             }
         }
 
-        [Authorize(Roles = "ADMIN,TEAM_MANAGER")]
+        [Authorize(Roles = "ADMIN,MANAGER")]
         [HttpGet]
         public async Task<IActionResult> FetchAllProjects()
         {

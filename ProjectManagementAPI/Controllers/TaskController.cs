@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using ProjectManagementAPI.DTO;
 using ProjectManagementAPI.Models.Enums;
 using ProjectManagementAPI.Services;
@@ -18,6 +19,7 @@ namespace ProjectManagementAPI.Controllers
             _taskService = taskService;
         }
 
+        [Authorize(Roles = "ADMIN,MANAGER")]
         [HttpPost]
         public async Task<IActionResult> CreateTaskAsync(CreateTaskDTO dto)
         {
@@ -33,6 +35,7 @@ namespace ProjectManagementAPI.Controllers
 
         }
 
+        [Authorize(Roles = "ADMIN,MANAGER")]
         [HttpPatch]
         [Route("{taskId}")]
         public async Task<IActionResult> UpdateTaskAsync(int taskId, PatchDTO dto)
@@ -49,6 +52,7 @@ namespace ProjectManagementAPI.Controllers
             }
         }
 
+        [Authorize(Roles = "ADMIN,MANAGER")]
         [HttpDelete]
         [Route("{taskId}")]
         public async Task<IActionResult> DeleteTaskAsync(int taskId)
@@ -65,13 +69,14 @@ namespace ProjectManagementAPI.Controllers
             }
         }
 
+        [Authorize(Roles = "ADMIN,MANAGER,TEAM_MEMBER,")]
         [HttpGet]
         [Route("{taskId}")]
         public async Task<IActionResult> GetTaskAsync(int taskId)
         {
             try
             {
-                return Ok(new APIResponse(true, new List<APIResponse.Error>(), await _taskService.GetTaskAsync(taskId)));
+                return Ok(new APIResponse(true, new List<APIResponse.Error>(), await _taskService.GetTaskAsync(User.Identity.Name, taskId)));
             }
             catch (APIException ex)
             {
@@ -80,7 +85,7 @@ namespace ProjectManagementAPI.Controllers
             }
         }
 
-
+        [Authorize(Roles = "ADMIN,MANAGER")]
         [HttpGet]
         public async Task<IActionResult> GetAllProjectTasksAsync([FromQuery] int? projectId = null, [FromQuery] String? userId = null, [FromQuery] Status? status = null)
         {

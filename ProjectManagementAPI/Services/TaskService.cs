@@ -97,7 +97,7 @@ namespace ProjectManagementAPI.Services
                 throw new DatabaseException("Error when deleting from database");
         }
 
-        public async Task<GetTaskDTO> GetTaskAsync(int taskId)
+        public async Task<GetTaskDTO> GetTaskAsync(string username, int taskId)
         {
             IQueryable<ProjectTask> query = _dbContext.Tasks.Include(task => task.AssignedTo).Include(task => task.Project)
                 .Where(task => task.Id == taskId);
@@ -107,6 +107,10 @@ namespace ProjectManagementAPI.Services
 
 
             ProjectTask task = await query.FirstAsync();
+
+            ApplicationUser? user = await _dbContext.Users.FindAsync(username);
+            if (task.AssignedTo != user)
+                throw new UnauthorizedException("User not authorized to fetch task not assigned to him");
                 
             return new GetTaskDTO
             {
