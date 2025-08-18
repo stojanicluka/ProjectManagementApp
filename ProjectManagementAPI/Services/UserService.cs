@@ -64,7 +64,7 @@ namespace ProjectManagementAPI.Services
             if (!await _userManager.CheckPasswordAsync(user, dto.Password))
                 throw new WrongCurrentPasswordException("Wrong password");
 
-            SymmetricSecurityKey key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes( _configuration["JWT:SigningKey"]));
+            SymmetricSecurityKey key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes( _configuration["JWT:SigningKey"]??""));
 
             SigningCredentials credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
 

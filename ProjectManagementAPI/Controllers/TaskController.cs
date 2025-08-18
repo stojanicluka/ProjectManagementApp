@@ -35,7 +35,7 @@ namespace ProjectManagementAPI.Controllers
 
         }
 
-        [Authorize(Roles = "ADMIN,MANAGER")]
+        [Authorize(Roles = "ADMIN,MANAGER,TEAM_MEMBER")]
         [HttpPatch]
         [Route("{taskId}")]
         public async Task<IActionResult> UpdateTaskAsync(int taskId, PatchDTO dto)
@@ -52,7 +52,7 @@ namespace ProjectManagementAPI.Controllers
             }
         }
 
-        [Authorize(Roles = "ADMIN,MANAGER")]
+        [Authorize(Roles = "ADMIN,MANAGER,TEAM_MEMBER")]
         [HttpDelete]
         [Route("{taskId}")]
         public async Task<IActionResult> DeleteTaskAsync(int taskId)
@@ -69,7 +69,7 @@ namespace ProjectManagementAPI.Controllers
             }
         }
 
-        [Authorize(Roles = "ADMIN,MANAGER,TEAM_MEMBER,")]
+        [Authorize(Roles = "ADMIN,MANAGER,TEAM_MEMBER")]
         [HttpGet]
         [Route("{taskId}")]
         public async Task<IActionResult> GetTaskAsync(int taskId)
