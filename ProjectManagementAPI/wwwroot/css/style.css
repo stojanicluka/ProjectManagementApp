@@ -1,0 +1,22 @@
+﻿* {
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+    .main-container .navbar {
+        background-color: #3498db;
+    }
+
+    .main-container .navbar h1 {
+        color: #2c3e50;
+        font-weight: bolder;
+        
+    }
+
+    .main-container .navbar .btn {
+        background-color: #ecf0f1;
+        border-radius: 4px;
+    }
+
+    .main-container .main {
+        height: calc(100vh - 80px);
+    }
