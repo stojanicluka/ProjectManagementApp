@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using ProjectManagementAPI.DTO;
 using ProjectManagementAPI.Models.Enums;
 using ProjectManagementAPI.Services;
@@ -42,8 +43,18 @@ namespace ProjectManagementAPI.Controllers
         {
             try
             {
-                await _taskService.UpdateTaskAsync(taskId, dto);
+                await _taskService.UpdateTaskAsync(taskId, dto, User.Identity.Name);
                 return Ok(new APIResponse());
+            }
+            catch (UserNotFoundException ex)
+            {
+                List<APIResponse.Error> errors = new List<APIResponse.Error> { new APIResponse.Error { Type = ex.getType(), Message = ex.Message } };
+                return StatusCode(StatusCodes.Status500InternalServerError, new APIResponse(false, errors, null));
+            }
+            catch (RoleNotFoundException ex)
+            {
+                List<APIResponse.Error> errors = new List<APIResponse.Error> { new APIResponse.Error { Type = ex.getType(), Message = ex.Message } };
+                return StatusCode(StatusCodes.Status500InternalServerError, new APIResponse(false, errors, null));
             }
             catch (APIException ex)
             {

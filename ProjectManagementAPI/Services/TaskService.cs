@@ -44,11 +44,25 @@ namespace ProjectManagementAPI.Services
             return new IntegerIdDTO { Id = task.Id };
         }
 
-        public async Task UpdateTaskAsync(int taskId, PatchDTO dto)
+        public async Task UpdateTaskAsync(int taskId, PatchDTO dto, string username)
         {
             ProjectTask? task = await _dbContext.Tasks.FindAsync(taskId);
             if (task == null)
                 throw new TaskNotFoundException("Task with id " + taskId.ToString() + " not found");
+
+            ApplicationUser? appUser = await _userManager.FindByNameAsync(username);
+            if (appUser == null)
+                throw new UserNotFoundException("Internal error: Authentified user not found");
+
+            string role = (await _userManager.GetRolesAsync(appUser)).First();
+
+            if (role == null)
+                throw new RoleNotFoundException("Internal error: Authentified user not found");
+
+            if (role == "TEAM_MEMBER" && task.AssignedTo.UserName != username)
+                throw new UnauthorizedException("User not authorized to update task");
+
+
 
             foreach (PatchDTO.Patch p in dto.Patches)
             {
@@ -109,7 +123,8 @@ namespace ProjectManagementAPI.Services
             ProjectTask task = await query.FirstAsync();
 
             ApplicationUser? user = await _userManager.FindByNameAsync(username);
-            if (task.AssignedTo != user)
+            string role = (await _userManager.GetRolesAsync(user)).FirstOrDefault("INACTIVE");
+            if (task.AssignedTo != user && role != "ADMIN" && role != "MANAGER")
                 throw new UnauthorizedException("User not authorized to fetch task not assigned to him");
                 
             return new GetTaskDTO
