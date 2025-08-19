@@ -2,29 +2,20 @@
     font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
 }
 
-body {
-    
-}
-
 .main-container .navbar {
     background-color: #3498db;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 
-    .main-container .navbar h1 {
-        color: #2c3e50;
-        font-weight: bolder;
-        
-    }
+.main-container .navbar h1 {
+    color: #2c3e50;
+    font-weight: bolder;   
+}
 
-    .main-container .navbar .btn {
-        background-color: #ecf0f1;
-        border-radius: 4px;
-    }
-
-    .main-container .main {
-
-    }
+.main-container .navbar .btn {
+    background-color: #ecf0f1;
+    border-radius: 4px;
+}
 
 .registration-form {
     background-color: #3498db;
@@ -32,7 +23,7 @@ body {
     box-shadow: 0 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 
-    .registration-form button {
-        background-color: #ecf0f1;
-        color:black;
-    }
+.registration-form button {
+    background-color: #ecf0f1;
+    color:black;
+}
