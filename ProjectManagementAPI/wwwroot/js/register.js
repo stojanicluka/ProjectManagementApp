@@ -8,8 +8,10 @@
     var password = document.getElementById('password').value;
     var confirm_password = document.getElementById('confirm-password').value;
 
-    if (password != confirm_password)
-        document.getElementById('error-msg').textContent = 'Passwords do not match!'
+    if (password != confirm_password) {
+        document.getElementById('error-msg').textContent = 'Passwords do not match!';
+        return;
+    }
 
     var data = {
         firstName: first_name,
