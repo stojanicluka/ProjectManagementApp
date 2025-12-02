@@ -30,7 +30,7 @@ namespace ProjectManagementAPI.Services
             _configuration = configuration;
         }
 
-        public async Task<StringIdDTO> RegisterUserAsync(RegisterUserDTO dto)
+        public async Task<StringDTO> RegisterUserAsync(RegisterUserDTO dto)
         {
             if (await _userManager.FindByNameAsync(dto.Username) != null)
                 throw new DuplicateUsernameException("Username " + dto.Username + " already exists");
@@ -52,7 +52,7 @@ namespace ProjectManagementAPI.Services
             if (roleAssignmentResult.Errors.Count() > 0)
                 throw new RegistrationErrorException(roleAssignmentResult.Errors.Count() > 0 ? roleAssignmentResult.Errors.First().Description : "Unknown registration error");
 
-            return new StringIdDTO { Id = user.Id };
+            return new StringDTO { Value = user.Id };
         }
 
         public async Task<String> LoginAsync(LoginDTO dto)
@@ -86,20 +86,23 @@ namespace ProjectManagementAPI.Services
         }
 
 
-        public async Task AssignRoleAsync(String userID, StringIdDTO dto)
+        public async Task AssignRoleAsync(string userID, SetRoleDTO dto, string currentUserName)
         {
             ApplicationUser? user = await _userManager.FindByIdAsync(userID);
             if (user == null)
                 throw new UserNotFoundException("User with ID " +  userID + " does not exist");
 
-            IdentityRole? role = await _roleManager.FindByIdAsync(dto.Id);
+            if (user.UserName == currentUserName)
+                throw new RoleAssignmentError("Can't change own role");
+
+            IdentityRole? role = await _roleManager.FindByNameAsync(dto.RoleName);
             if (role == null)
-                throw new RoleNotFoundException("Role with ID " + dto.Id + " does not exist");
+                throw new RoleNotFoundException("Role " + dto.RoleName + " does not exist");
 
             IList<String> roles = await _userManager.GetRolesAsync(user);
             await _userManager.RemoveFromRolesAsync(user, roles);
 
-            if (!(await _userManager.AddToRoleAsync(user, role.Name)).Succeeded)
+            if (!(await _userManager.AddToRoleAsync(user, dto.RoleName)).Succeeded)
                 throw new RoleAssignmentError("Unknown role assignment error");
         }
 
@@ -239,6 +242,17 @@ namespace ProjectManagementAPI.Services
             }
 
             return uDTOs;
+        }
+
+        public async Task<StringDTO> FetchMyRoleAsync(string username)
+        {
+            ApplicationUser? user = await _userManager.FindByNameAsync(username);
+            if (user == null)
+                throw new UserNotFoundException("User not found");
+
+            return new StringDTO {
+                Value = (await _userManager.GetRolesAsync(user)).First()
+            };
         }
     }
 }

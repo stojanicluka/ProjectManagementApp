@@ -2,8 +2,8 @@
 
 namespace ProjectManagementAPI.DTO
 {
-    public class StringIdDTO
+    public class StringDTO
     {
-        public String Id { get; set; }
+        public String Value { get; set; }
     }
 }

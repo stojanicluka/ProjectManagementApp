@@ -77,9 +77,15 @@ namespace ProjectManagementAPI.Services
                 throw new DatabaseException("Error when deleting from a database");
         }
 
-        public async Task<List<GetProjectDTO>> FetchAllAsync()
+        public async Task<List<GetProjectDTO>> FetchAllAsync(string username)
         {
-            return await _context.Projects.Select(p => new GetProjectDTO
+            ApplicationUser? user = await _userManager.FindByNameAsync(username);
+            if (user == null)
+                throw new UserNotFoundException("User with username " + username + " not found");
+
+            string role = (await _userManager.GetRolesAsync(user)).First();
+
+            List<GetProjectDTO> allProjects = await _context.Projects.Select(p => new GetProjectDTO
             {
                 Id = p.Id,
                 Title = p.Title,
@@ -89,6 +95,18 @@ namespace ProjectManagementAPI.Services
                 EndDate = p.EndDate,
                 Status = p.Status
             }).ToListAsync();
+
+            if (role == "ADMIN" || role == "MANAGER")
+                return allProjects;
+
+            List<GetProjectDTO> userProjects = new List<GetProjectDTO>();
+            foreach(GetProjectDTO dto in allProjects) 
+            {
+                if (_context.Tasks.Where(task => (task.Project.Id == dto.Id && task.AssignedTo.UserName == username)).ToList().Count > 0)
+                    userProjects.Add(dto);
+            }
+
+            return userProjects;
         }
 
         public async Task<GetProjectDTO> FetchAsync(string username, int id)

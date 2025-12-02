@@ -102,11 +102,11 @@ namespace ProjectManagementAPI.Controllers
         [Authorize(Roles = "ADMIN")]
         [HttpPut]
         [Route("role/{userID}")]
-        public async Task<IActionResult> AssignRoleAsync(String userID, StringIdDTO dto)
+        public async Task<IActionResult> AssignRoleAsync(String userID, SetRoleDTO dto)
         {
             try
             {
-                await _userService.AssignRoleAsync(userID, dto);
+                await _userService.AssignRoleAsync(userID, dto, User.Identity.Name);
                 return Ok(new APIResponse());
             }
             catch (APIException ex)
@@ -140,7 +140,7 @@ namespace ProjectManagementAPI.Controllers
         {
             try
             {   
-                return Ok(await _userService.FetchUserAsync(id));
+                return Ok(new APIResponse(await _userService.FetchUserAsync(id)));
             }
             catch (APIException ex)
             {
@@ -155,7 +155,7 @@ namespace ProjectManagementAPI.Controllers
         {
             try
             {
-                return Ok(await _userService.FetchAllUsersAsync());
+                return Ok(new APIResponse(await _userService.FetchAllUsersAsync()));
             }
             catch (APIException ex)
             {
@@ -171,7 +171,23 @@ namespace ProjectManagementAPI.Controllers
         {
             try
             {
-                return Ok(await _userService.FetchAllRolesAsync());
+                return Ok(new APIResponse(await _userService.FetchAllRolesAsync()));
+            }
+            catch (APIException ex)
+            {
+                List<APIResponse.Error> errors = new List<APIResponse.Error> { new APIResponse.Error { Type = ex.getType(), Message = ex.Message } };
+                return BadRequest(new APIResponse(false, errors, null));
+            }
+        }
+
+        [Authorize(Roles = "ADMIN,MANAGER,TEAM_MEMBER,INACTIVE")]
+        [HttpGet]
+        [Route("role/myrole")]
+        public async Task<IActionResult> FetchMyRole()
+        {
+            try
+            {
+                return Ok(new APIResponse(await _userService.FetchMyRoleAsync(User.Identity.Name)));
             }
             catch (APIException ex)
             {
