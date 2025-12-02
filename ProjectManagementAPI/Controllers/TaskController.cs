@@ -85,13 +85,13 @@ namespace ProjectManagementAPI.Controllers
             }
         }
 
-        [Authorize(Roles = "ADMIN,MANAGER")]
+        [Authorize(Roles = "ADMIN,MANAGER,TEAM_MEMBER")]
         [HttpGet]
-        public async Task<IActionResult> GetAllProjectTasksAsync([FromQuery] int? projectId = null, [FromQuery] String? userId = null, [FromQuery] Status? status = null)
+        public async Task<IActionResult> GetAllProjectTasksAsync([FromQuery] int? projectId = null, [FromQuery] String? username = null, [FromQuery] Status? status = null)
         {
             try
             {
-                return Ok(new APIResponse(true, new List<APIResponse.Error>(), await _taskService.GetAllProjectUserTasksAsync(projectId, userId, status)));
+                return Ok(new APIResponse(true, new List<APIResponse.Error>(), await _taskService.GetAllProjectUserTasksAsync(projectId, username, status, User.Identity.Name)));
             }
             catch (APIException ex)
             {

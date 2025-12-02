@@ -16,7 +16,7 @@ namespace ProjectManagementAPI.DTO
 
         public Status Status { get; set; }
 
-        public String UserId { get; set; }
+        public String Username { get; set; }
 
         public int ProjectId { get; set; }
     }

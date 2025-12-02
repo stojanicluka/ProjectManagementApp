@@ -23,8 +23,10 @@
 
     if (result.success) {
         sessionStorage.setItem('JWT', result.body);
+        sessionStorage.setItem('username', user_name);
         console.log(sessionStorage.getItem('JWT'));
         document.getElementById('error-msg').textContent = 'Success!';
+        window.location.href = "/index.html";
     } else {
         var errors = '';
         result.errors.forEach(function (error) {
@@ -32,7 +34,7 @@
         });
         document.getElementById('error-msg').textContent = errors;
     }
-
+   
     return;
 
 });

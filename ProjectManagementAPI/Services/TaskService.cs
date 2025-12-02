@@ -31,9 +31,9 @@ namespace ProjectManagementAPI.Services
             if (project == null) 
                 throw new ProjectNotFoundException("Project with id " + dto.ProjectId.ToString() + " not found");
 
-            ApplicationUser? user = await _userManager.FindByIdAsync(dto.userId);
+            ApplicationUser? user = await _userManager.FindByNameAsync(dto.userId);
             if (user == null)
-                throw new UserNotFoundException("User with id " + dto.userId.ToString() + " not found");
+                throw new UserNotFoundException("User with username " + dto.userId.ToString() + " not found");
 
 
             ProjectTask task = new ProjectTask(dto.Title, dto.Description, dto.Deadline, dto.Priority, dto.Status, project, user);
@@ -71,9 +71,9 @@ namespace ProjectManagementAPI.Services
                         break;
                     case "UserId":
                         String userId = ((JsonElement)p.Value).Deserialize<String>();
-                        ApplicationUser? user = await _userManager.FindByIdAsync(userId);
+                        ApplicationUser? user = await _userManager.FindByNameAsync(userId);
                         if (user == null)
-                            throw new UserNotFoundException("User with ID " + (String)p.Value + " not found");
+                            throw new UserNotFoundException("User with ID " + userId + " not found");
                         task.AssignedTo = user;
                         break;
                     default:
@@ -120,23 +120,32 @@ namespace ProjectManagementAPI.Services
                 Id = task.Id,
                 Status = task.Status,
                 Title = task.Title,
-                UserId = task.AssignedTo.Id,
+                Username = task.AssignedTo.Id,
                 ProjectId = task.Project.Id
             };
         }
 
-        public async Task<List<GetTaskDTO>> GetAllProjectUserTasksAsync(int? projectId, String? userId, Status? status)
+        public async Task<List<GetTaskDTO>> GetAllProjectUserTasksAsync(int? projectId, string? username, Status? status, string actualUsername)
         {
+            ApplicationUser? user = await _userManager.FindByNameAsync(actualUsername);
+            if (user == null)
+                throw new UserNotFoundException("User with username " + actualUsername + " not found");
+
+            string role = (await _userManager.GetRolesAsync(user)).First();
+
             IQueryable<ProjectTask> query = _dbContext.Tasks;
 
             if (projectId != null)
                 query = query.Where(task => task.Project.Id == projectId);
 
-            if (userId != null)
-                query = query.Where(task => task.AssignedTo.Id == userId);
+            if (username != null)
+                query = query.Where(task => task.AssignedTo.UserName == username);
 
             if (status != null)
                 query = query.Where(task => task.Status == status);
+
+            if (role == "TEAM_MEMBER")
+                query = query.Where(task => task.AssignedTo.UserName == actualUsername);
 
             return await query.Select(task => new GetTaskDTO
             {
@@ -146,7 +155,7 @@ namespace ProjectManagementAPI.Services
                 Id = task.Id,
                 Status = task.Status,
                 Title = task.Title,
-                UserId = task.AssignedTo.Id,
+                Username = task.AssignedTo.UserName,
                 ProjectId = task.Project.Id
             }).ToListAsync();
         }
